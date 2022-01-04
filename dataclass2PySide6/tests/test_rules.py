@@ -1,5 +1,5 @@
 import dataclasses
-from dataclass2PySide6 import bool2QCheckBox, int2LineEdit
+from dataclass2PySide6 import bool2QCheckBox, int2LineEdit, float2LineEdit
 
 
 def test_bool2QCheckBox(qtbot):
@@ -44,3 +44,21 @@ def test_int2LineEdit(qtbot):
     widget2 = int2LineEdit(y)
     assert widget2.placeholderText() == "y"
     assert widget2.text() == "1"
+
+
+def test_float2LineEdit(qtbot):
+
+    @dataclasses.dataclass
+    class FloatDataClass:
+        x: float
+        y: float = 1.2
+
+    x, y = dataclasses.fields(FloatDataClass)
+
+    widget1 = float2LineEdit(x)
+    assert widget1.placeholderText() == "x"
+    assert widget1.text() == ""
+
+    widget2 = float2LineEdit(y)
+    assert widget2.placeholderText() == "y"
+    assert widget2.text() == "1.2"
