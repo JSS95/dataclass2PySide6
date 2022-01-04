@@ -10,6 +10,7 @@ def test_IntLineEdit(qtbot):
                           raising=True,
                           check_params_cb=lambda val: val == 1):
         widget.setText("1")
+    assert widget.value() == 1
 
     # test valueEdited signal
     widget.clear()
@@ -18,6 +19,7 @@ def test_IntLineEdit(qtbot):
                           check_params_cb=lambda val: val == 1):
         qtbot.mouseClick(widget, Qt.LeftButton)
         qtbot.keyPress(widget, "1")
+    assert widget.value() == 1
 
     # test validator
     widget.clear()
@@ -28,6 +30,7 @@ def test_IntLineEdit(qtbot):
         qtbot.keyPress(widget, "1")
         qtbot.keyPress(widget, ".") # this key is ignored
         qtbot.keyPress(widget, "1")
+    assert widget.value() == 11
 
 
 def test_FloatLineEdit(qtbot):
@@ -38,6 +41,7 @@ def test_FloatLineEdit(qtbot):
                           raising=True,
                           check_params_cb=lambda val: val == 1.2):
         widget.setText("1.2")
+    assert widget.value() == 1.2
 
     # test valueEdited signal
     widget.clear()
@@ -48,6 +52,7 @@ def test_FloatLineEdit(qtbot):
         qtbot.keyPress(widget, "1")
         qtbot.keyPress(widget, ".")
         qtbot.keyPress(widget, "2")
+    assert widget.value() == 1.2
 
     # test validator
     widget.clear()
@@ -59,3 +64,4 @@ def test_FloatLineEdit(qtbot):
         qtbot.keyPress(widget, ".")
         qtbot.keyPress(widget, ".") # this key is ignored
         qtbot.keyPress(widget, "2")
+    assert widget.value() == 1.2

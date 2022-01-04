@@ -1,6 +1,7 @@
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import QLineEdit
+from typing import Union
 
 
 __all__ = [
@@ -15,6 +16,9 @@ class IntLineEdit(QLineEdit):
 
     The validator is set as ``QIntValidator``. When text is changed or
     edited, ``valueChanged`` and ``valueEdited`` signals are emitted.
+
+    :meth:`value()` returns the current integer value, or ``None`` if
+    the text is empty.
 
     Examples
     ========
@@ -42,6 +46,11 @@ class IntLineEdit(QLineEdit):
         self.textChanged.connect(self.emitValueChanged)
         self.textEdited.connect(self.emitValueEdited)
 
+    def value(self) -> Union[int, None]:
+        text = self.text()
+        if text:
+            return int(text)
+
     def emitValueChanged(self, text: str):
         if text:
             self.valueChanged.emit(int(text))
@@ -57,6 +66,9 @@ class FloatLineEdit(QLineEdit):
 
     The validator is set as ``QDoubleValidator``. When text is changed
     or edited, ``valueChanged`` and ``valueEdited`` signals are emitted.
+
+    :meth:`value()` returns the current float value, or ``None`` if the
+    text is empty.
 
     Examples
     ========
@@ -83,6 +95,11 @@ class FloatLineEdit(QLineEdit):
         self.setValidator(QDoubleValidator())
         self.textChanged.connect(self.emitValueChanged)
         self.textEdited.connect(self.emitValueEdited)
+
+    def value(self) -> Union[float, None]:
+        text = self.text()
+        if text:
+            return float(text)
 
     def emitValueChanged(self, text: str):
         if text:
