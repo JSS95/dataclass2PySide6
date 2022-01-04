@@ -13,6 +13,7 @@ __all__ = [
 def bool2QCheckBox(field: dataclasses.Field):
     widget = QCheckBox()
     widget.setCheckable(True)
+    widget.setText(field.name)
     default = field.default
     if default != dataclasses.MISSING:
         widget.setChecked(bool(default))
