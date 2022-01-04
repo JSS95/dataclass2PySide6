@@ -65,7 +65,7 @@ def test_float2LineEdit(qtbot):
     assert widget2.text() == "1.2"
 
 
-def str2LineEdit(qtbot):
+def test_str2LineEdit(qtbot):
 
     @dataclasses.dataclass
     class StrDataClass:
