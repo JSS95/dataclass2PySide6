@@ -3,7 +3,7 @@ Functions to convert dataclass field to QWidget.
 """
 import dataclasses
 from PySide6.QtWidgets import QCheckBox, QLineEdit
-from .widgets import IntLineEdit, FloatLineEdit
+from .datawidgets import IntLineEdit, FloatLineEdit
 
 
 __all__ = [
