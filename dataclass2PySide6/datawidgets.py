@@ -7,7 +7,6 @@ signal which emits the changed value in correct type.
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import QCheckBox, QLineEdit
-from typing import Union
 
 
 __all__ = [
@@ -66,8 +65,8 @@ class IntLineEdit(QLineEdit):
     edited, ``dataValueChanged`` or ``dataValueEdited`` signals are
     emitted.
 
-    :meth:`dataValue` returns the current integer value, or ``None`` if
-    the text is empty.
+    :meth:`dataValue` returns the current integer value. The default
+    value is zero.
 
     Examples
     ========
@@ -95,18 +94,18 @@ class IntLineEdit(QLineEdit):
         self.textChanged.connect(self.emitDataValueChanged)
         self.textEdited.connect(self.emitDataValueEdited)
 
-    def dataValue(self) -> Union[int, None]:
+    def dataValue(self) -> int:
         text = self.text()
-        if text:
-            return int(text)
+        val = int(text) if text else int(0)
+        return val
 
     def emitDataValueChanged(self, text: str):
-        if text:
-            self.dataValueChanged.emit(int(text))
+        val = int(text) if text else int(0)
+        self.dataValueChanged.emit(val)
 
     def emitDataValueEdited(self, text: str):
-        if text:
-            self.dataValueEdited.emit(int(text))
+        val = int(text) if text else int(0)
+        self.dataValueEdited.emit(val)
 
 
 class FloatLineEdit(QLineEdit):
@@ -117,8 +116,8 @@ class FloatLineEdit(QLineEdit):
     or edited, ``dataValueChanged`` or ``dataValueEdited`` signals are
     emitted.
 
-    :meth:`dataValue` returns the current float value, or ``None`` if 
-    the text is empty.
+    :meth:`dataValue` returns the current float value. The default
+    value is zero.
 
     Examples
     ========
@@ -143,21 +142,22 @@ class FloatLineEdit(QLineEdit):
         super().__init__(parent)
 
         self.setValidator(QDoubleValidator())
-        self.textChanged.connect(self.emitValueChanged)
-        self.textEdited.connect(self.emitValueEdited)
+        self.textChanged.connect(self.emitDataValueChanged)
+        self.textEdited.connect(self.emitDataValueEdited)
 
-    def dataValue(self) -> Union[float, None]:
+    def dataValue(self) -> float:
         text = self.text()
-        if text:
-            return float(text)
+        val = float(text) if text else float(0)
+        return val
 
-    def emitValueChanged(self, text: str):
-        if text:
-            self.dataValueChanged.emit(float(text))
+    def emitDataValueChanged(self, text: str):
+        val = float(text) if text else float(0)
+        self.dataValueChanged.emit(val)
 
-    def emitValueEdited(self, text: str):
-        if text:
-            self.dataValueEdited.emit(float(text))
+    def emitDataValueEdited(self, text: str):
+        val = float(text) if text else float(0)
+        self.dataValueEdited.emit(val)
+
 
 
 class StrLineEdit(QLineEdit):
@@ -191,14 +191,14 @@ class StrLineEdit(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.textChanged.connect(self.emitValueChanged)
-        self.textEdited.connect(self.emitValueEdited)
+        self.textChanged.connect(self.emitDataValueChanged)
+        self.textEdited.connect(self.emitDataValueEdited)
 
     def dataValue(self) -> str:
         return self.text()
 
-    def emitValueChanged(self, text: str):
+    def emitDataValueChanged(self, text: str):
         self.dataValueChanged.emit(text)
 
-    def emitValueEdited(self, text: str):
+    def emitDataValueEdited(self, text: str):
         self.dataValueEdited.emit(text)
