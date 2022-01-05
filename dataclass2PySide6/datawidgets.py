@@ -1,17 +1,60 @@
 """
 Widgets to represent data of dataclass. Every widget has ``dataValue()``
-method which returns the data in correct type.
+method which returns the data in correct type, and ``dataValueChanged``
+signal which emits the changed value in correct type.
+
 """
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
-from PySide6.QtWidgets import QLineEdit
+from PySide6.QtWidgets import QCheckBox, QLineEdit
 from typing import Union
 
 
 __all__ = [
+    "BoolCheckBox",
     "IntLineEdit",
     "FloatLineEdit",
 ]
+
+
+class BoolCheckBox(QCheckBox):
+    """
+    Checkbox for boolean value.
+
+    When the check state is changed, ``dataValueChanged`` signal is
+    emiited.
+
+    :meth:`dataValue` returns the current boolean value.
+
+    Examples
+    ========
+
+    >>> from PySide6.QtWidgets import QApplication
+    >>> import sys
+    >>> from dataclass2PySide6 import BoolCheckBox
+    >>> def runGUI():
+    ...     app = QApplication(sys.argv)
+    ...     widget = BoolCheckBox()
+    ...     geometry = widget.screen().availableGeometry()
+    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
+    ...     widget.show()
+    ...     app.exec()
+    ...     app.quit()
+    >>> runGUI() # doctest: +SKIP
+
+    """
+    dataValueChanged = Signal(bool)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.stateChanged.connect(self.emitDataValueChanged)
+
+    def dataValue(self) -> bool:
+        return self.isChecked()
+
+    def emitDataValueChanged(self, state: int):
+        self.dataValueChanged.emit(bool(state))
 
 
 class IntLineEdit(QLineEdit):
@@ -22,8 +65,8 @@ class IntLineEdit(QLineEdit):
     edited, ``dataValueChanged`` and ``dataValueEdited`` signals are
     emitted.
 
-    :meth:`dataValue()` returns the current integer value, or ``None``
-    if the text is empty.
+    :meth:`dataValue` returns the current integer value, or ``None`` if
+    the text is empty.
 
     Examples
     ========
@@ -73,7 +116,7 @@ class FloatLineEdit(QLineEdit):
     or edited, ``dataValueChanged`` and ``dataValueEdited`` signals are
     emitted.
 
-    :meth:`dataValue()` returns the current float value, or ``None`` if 
+    :meth:`dataValue` returns the current float value, or ``None`` if 
     the text is empty.
 
     Examples

@@ -1,5 +1,19 @@
 from PySide6.QtCore import Qt
-from dataclass2PySide6 import IntLineEdit, FloatLineEdit
+from dataclass2PySide6 import BoolCheckBox, IntLineEdit, FloatLineEdit
+
+
+def test_BoolCheckBox(qtbot):
+    widget = BoolCheckBox()
+
+    # test dataValueChanged signal
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val):
+        widget.setChecked(True)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: not val):
+        widget.setChecked(False)
 
 
 def test_IntLineEdit(qtbot):
