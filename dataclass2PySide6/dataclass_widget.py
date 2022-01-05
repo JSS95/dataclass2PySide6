@@ -38,19 +38,24 @@ class DataclassWidget(QGroupBox):
     Examples
     ========
 
+    Widgets are automatically generated from type annotations. Nested
+    dataclasses are recursively constructed.
+
     >>> from dataclasses import dataclass
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
     >>> from typing import Tuple
     >>> from dataclass2PySide6 import DataclassWidget
     >>> @dataclass
-    ... class DataClass:
-    ...     a: bool
-    ...     b: int
-    ...     c: Tuple[int, Tuple[bool, int]]
+    ... class DataClass1:
+    ...     a: Tuple[int, Tuple[bool, int]]
+    >>> @dataclass
+    ... class DataClass2:
+    ...     x: str
+    ...     y: DataClass1
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
-    ...     widget = DataclassWidget.fromDataclass(DataClass)
+    ...     widget = DataclassWidget.fromDataclass(DataClass2)
     ...     geometry = widget.screen().availableGeometry()
     ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
@@ -88,7 +93,10 @@ class DataclassWidget(QGroupBox):
 
     def field2Widget(self, field: dataclasses.Field) -> QWidget:
         """Return a widget for *field*."""
-        widget = type2Widget(field.type)
+        if dataclasses.is_dataclass(field.type):
+            widget = type(self).fromDataclass(field.type)
+        else:
+            widget = type2Widget(field.type)
         widget.setDataName(field.name)
 
         default = field.default
