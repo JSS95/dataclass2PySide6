@@ -77,9 +77,16 @@ def test_DataclassWidget_dataChanged(qtbot, dclswidget):
 
 
 def test_DataclassWidget_currentData(qtbot, dclswidget):
-    dcls = dclswidget.dataclassType()
+    dclstype = dclswidget.dataclassType()
 
-    assert dclswidget.currentData() == dcls(a=False,
-                                            b=int(0),
-                                            c=float(0),
-                                            d="")
+    assert dclswidget.currentData() == dclstype(a=False,
+                                                b=int(0),
+                                                c=float(0),
+                                                d="")
+
+
+def test_DataclassWidget_applyData(qtbot, dclswidget):
+    dcls = dclswidget.dataclassType()(a=True, b=42, c=4.2, d="foo")
+
+    dclswidget.applyData(dcls)
+    assert dclswidget.currentData() == dcls

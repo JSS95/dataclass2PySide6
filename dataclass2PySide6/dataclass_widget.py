@@ -26,6 +26,10 @@ class DataclassWidget(QWidget):
     class method. Subclass may redefine :meth:`field2Widget` method to
     change the subwidget constructed by the field.
 
+    :meth:`currentData` returns the current states of the widgets as
+    dataclass instance. :meth:`applyData` updates the current states of
+    the widgets with dataclass instance.
+
     Examples
     ========
 
@@ -118,6 +122,28 @@ class DataclassWidget(QWidget):
     def currentData(self) -> object:
         """
         Return the current state of widgets as dataclass instance.
+
+        Returns
+        =======
+
+        data
+            Dataclass instance
+
         """
         args = {name: w.dataValue() for (name, w) in self.widgets().items()}
-        return self.dataclassType()(**args)
+        data = self.dataclassType()(**args)
+        return data
+
+    def applyData(self, data: object):
+        """
+        Apply the dataclass instance to data widgets states.
+
+        Parameters
+        ==========
+
+        data
+            Dataclass instance
+
+        """
+        for name, w in self.widgets().items():
+            w.setDataValue(getattr(data, name))
