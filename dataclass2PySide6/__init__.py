@@ -1,17 +1,20 @@
 from .version import __version__ # noqa
 
-from .rules import bool2QCheckBox, int2LineEdit, float2LineEdit, str2LineEdit
 from .datawidgets import BoolCheckBox, IntLineEdit, FloatLineEdit, StrLineEdit
+from .rules import bool2QCheckBox, int2LineEdit, float2LineEdit, str2LineEdit
+from .dataclass_widget import DataclassWidget
 
 
 __all__ = [
+    "BoolCheckBox",
+    "IntLineEdit",
+    "FloatLineEdit",
+    "StrLineEdit",
+
     "bool2QCheckBox",
     "int2LineEdit",
     "float2LineEdit",
     "str2LineEdit",
 
-    "BoolCheckBox",
-    "IntLineEdit",
-    "FloatLineEdit",
-    "StrLineEdit",
+    "DataclassWidget",
 ]
