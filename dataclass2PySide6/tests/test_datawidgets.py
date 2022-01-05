@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt
 from dataclass2PySide6 import (BoolCheckBox, IntLineEdit, FloatLineEdit,
-    StrLineEdit)
+    StrLineEdit, MultiLineEdits)
 
 
 def test_BoolCheckBox(qtbot):
@@ -124,3 +124,15 @@ def test_StrLineEdit(qtbot):
         qtbot.keyPress(widget, "a")
         qtbot.keyPress(widget, "r")
     assert widget.dataValue() == "bar"
+
+
+def test_MultiLineEdits(qtbot):
+    line_edits = [IntLineEdit(), FloatLineEdit()]
+    widget = MultiLineEdits.fromLineEdits(line_edits)
+
+    # test dataValueChanged signal
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val == (42, 0.0)):
+        widget.lineEdits()[0].setDataValue(42)
+    assert widget.dataValue() == (42, 0.0)

@@ -10,7 +10,8 @@ Every widget has following methods and attributes:
 """
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
-from PySide6.QtWidgets import QCheckBox, QLineEdit
+from PySide6.QtWidgets import QCheckBox, QLineEdit, QWidget, QHBoxLayout
+from typing import List
 
 
 __all__ = [
@@ -18,6 +19,7 @@ __all__ = [
     "IntLineEdit",
     "FloatLineEdit",
     "StrLineEdit",
+    "MultiLineEdits",
 ]
 
 
@@ -253,3 +255,77 @@ class StrLineEdit(QLineEdit):
 
     def emitDataValueEdited(self, text: str):
         self.dataValueEdited.emit(str(text))
+
+
+class MultiLineEdits(QWidget):
+    """
+    Widget which wraps multiple line edits. It is used to represent the
+    tuple data with fixed number of items.
+
+    Standard way to construct this widget is by :meth:`fromLineEdits`
+    class method. Line edit widgets must be other data widget, e.g.
+    :class:`IntLineEdit` or :class:`FloatLineEdit`.
+
+    :meth:`dataValue` returns the current tuple value.
+
+    When data value of line edit is changed, :attr:`dataValueChanged`
+    signal is emiited.
+
+    :meth:`setDataValue` changes the texts of line edits.
+
+    Examples
+    ========
+
+    >>> from PySide6.QtWidgets import QApplication
+    >>> import sys
+    >>> from dataclass2PySide6 import IntLineEdit, MultiLineEdits
+    >>> def runGUI():
+    ...     app = QApplication(sys.argv)
+    ...     line_edits = [IntLineEdit(), IntLineEdit()]
+    ...     widget = MultiLineEdits.fromLineEdits(line_edits)
+    ...     geometry = widget.screen().availableGeometry()
+    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
+    ...     widget.show()
+    ...     app.exec()
+    ...     app.quit()
+    >>> runGUI() # doctest: +SKIP
+
+    """
+    dataValueChanged = Signal(tuple)
+
+    @classmethod
+    def fromLineEdits(cls, line_edits: List[QLineEdit]) -> "MultiLineEdits":
+        obj = cls()
+        obj._line_edits = line_edits
+        obj.initWidgets()
+        obj.initUI()
+        return obj
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._line_edits = []
+
+    def lineEdits(self) -> List[QLineEdit]:
+        return self._line_edits
+
+    def initWidgets(self):
+        for widget in self.lineEdits():
+            widget.dataValueChanged.connect(self.emitDataValueChanged)
+
+    def initUI(self):
+        layout = QHBoxLayout()
+        for widget in self.lineEdits():
+            layout.addWidget(widget)
+        self.setLayout(layout)
+
+    def dataValue(self) -> tuple:
+        return tuple(widget.dataValue() for widget in self.lineEdits())
+
+    def setDataValue(self, value: tuple):
+        for w, v in zip(self.lineEdits(), value):
+            w.setDataValue(value)
+        self.emitDataValueChanged()
+
+    def emitDataValueChanged(self):
+        value = self.dataValue()
+        self.dataValueChanged.emit(value)
