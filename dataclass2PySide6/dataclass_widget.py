@@ -23,8 +23,13 @@ class DataclassWidget(QWidget):
     Widget which represents the fields of dataclass type.
 
     Standard way to construct this widget is by :meth:`fromDataclass`
-    class method. Subclass may redefine :meth:`field2Widget` method to
-    change the subwidget constructed by the field.
+    class method.
+
+    Subclass may redefine :meth:`field2Widget` method to change the
+    subwidget constructed by the field. Every subwidget must have
+    ``dataValue()`` method which returns the current value,
+    ``dataValueChanged`` signal which emits the changed value,
+    and ``setDataValue()`` slot which updates the current value.
 
     :meth:`currentData` returns the current states of the widgets as
     dataclass instance. :meth:`applyData` updates the current states of
@@ -41,7 +46,6 @@ class DataclassWidget(QWidget):
     ... class DataClass:
     ...     a: bool
     ...     b: int
-    ...     c: float
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = DataclassWidget.fromDataclass(DataClass)
@@ -50,7 +54,7 @@ class DataclassWidget(QWidget):
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()
-    >>> runGUI() # doctest: +SKIP    
+    >>> runGUI() # doctest: +SKIP
     """
 
     dataChanged = Signal()
