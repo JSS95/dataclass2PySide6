@@ -15,11 +15,15 @@ def test_type2Widget(qtbot):
         type2Widget(Tuple)
     with pytest.raises(TypeError):
         type2Widget(Tuple[int, ...])
-    tuplewidget = type2Widget(Tuple[bool, int, float, str])
-    assert isinstance(tuplewidget.widgets()[0], BoolCheckBox)
-    assert isinstance(tuplewidget.widgets()[1], IntLineEdit)
-    assert isinstance(tuplewidget.widgets()[2], FloatLineEdit)
-    assert isinstance(tuplewidget.widgets()[3], StrLineEdit)
+    tuplegbox1 = type2Widget(Tuple[bool, int, float, str])
+    assert isinstance(tuplegbox1.widgets()[0], BoolCheckBox)
+    assert isinstance(tuplegbox1.widgets()[1], IntLineEdit)
+    assert isinstance(tuplegbox1.widgets()[2], FloatLineEdit)
+    assert isinstance(tuplegbox1.widgets()[3], StrLineEdit)
+    tuplegbox2 = type2Widget(Tuple[bool, Tuple[int]])
+    assert isinstance(tuplegbox2.widgets()[0], BoolCheckBox)
+    assert isinstance(tuplegbox2.widgets()[1], TupleGroupBox)
+    assert isinstance(tuplegbox2.widgets()[1].widgets()[0], IntLineEdit)
 
 
 def test_BoolCheckBox(qtbot):
