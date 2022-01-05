@@ -3,7 +3,9 @@ Widgets to represent data of dataclass.
 
 Every widget has following methods and attributes:
 
-* ``dataValue()`` : Returns the data in correct type
+* ``dataName()`` : Returns the data name as str
+* ``setDataName()`` : Set the data name
+* ``dataValue()`` : Returns the data value in correct type
 * ``dataValueChanged`` : Signal which emits the changed value
 * ``setDataValue()`` : Set the current state of the widget
 
@@ -85,6 +87,12 @@ class BoolCheckBox(QCheckBox):
 
         self.stateChanged.connect(self.emitDataValueChanged)
 
+    def dataName(self) -> str:
+        return self.text()
+
+    def setDataName(self, name: str):
+        self.setText(name)
+
     def dataValue(self) -> bool:
         return self.isChecked()
 
@@ -135,6 +143,12 @@ class IntLineEdit(QLineEdit):
 
         self.textChanged.connect(self.emitDataValueChanged)
         self.textEdited.connect(self.emitDataValueEdited)
+
+    def dataName(self) -> str:
+        return self.placeholderText()
+
+    def setDataName(self, name: str):
+        self.setPlaceholderText(name)
 
     def defaultDataValue(self) -> int:
         """
@@ -206,6 +220,12 @@ class FloatLineEdit(QLineEdit):
         self.textChanged.connect(self.emitDataValueChanged)
         self.textEdited.connect(self.emitDataValueEdited)
 
+    def dataName(self) -> str:
+        return self.placeholderText()
+
+    def setDataName(self, name: str):
+        self.setPlaceholderText(name)
+
     def defaultDataValue(self) -> float:
         """
         Default value for empty text.
@@ -271,6 +291,12 @@ class StrLineEdit(QLineEdit):
         self.textChanged.connect(self.emitDataValueChanged)
         self.textEdited.connect(self.emitDataValueEdited)
 
+    def dataName(self) -> str:
+        return self.placeholderText()
+
+    def setDataName(self, name: str):
+        self.setPlaceholderText(name)
+
     def dataValue(self) -> str:
         return self.text()
 
@@ -331,6 +357,12 @@ class TupleGroupBox(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._widgets = []
+
+    def dataName(self) -> str:
+        return self.title()
+
+    def setDataName(self, name: str):
+        self.setTitle(name)
 
     def widgets(self) -> List[QWidget]:
         return self._widgets

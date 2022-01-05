@@ -1,7 +1,6 @@
 import dataclasses
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QCheckBox, QLineEdit,
-    QGroupBox)
+from PySide6.QtWidgets import QWidget, QVBoxLayout
 from .datawidgets import type2Widget
 from typing import Dict
 
@@ -90,15 +89,9 @@ class DataclassWidget(QWidget):
     def field2Widget(self, field: dataclasses.Field) -> QWidget:
         """Return a widget for *field*."""
         widget = type2Widget(field.type)
+        widget.setDataName(field.name)
+
         default = field.default
-
-        if isinstance(widget, QCheckBox):
-            widget.setText(field.name)
-        elif isinstance(widget, QLineEdit):
-            widget.setPlaceholderText(field.name)
-        elif isinstance(widget, QGroupBox):
-            widget.setTitle(field.name)
-
         if default != dataclasses.MISSING:
             widget.setDataValue(default)
 
