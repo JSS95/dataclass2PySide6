@@ -2,8 +2,7 @@
 Functions to convert dataclass field to QWidget.
 """
 import dataclasses
-from PySide6.QtWidgets import QCheckBox, QLineEdit
-from .datawidgets import IntLineEdit, FloatLineEdit
+from .datawidgets import BoolCheckBox, IntLineEdit, FloatLineEdit, StrLineEdit
 
 
 __all__ = [
@@ -15,7 +14,7 @@ __all__ = [
 
 
 def bool2QCheckBox(field: dataclasses.Field):
-    widget = QCheckBox()
+    widget = BoolCheckBox()
     widget.setCheckable(True)
     widget.setText(field.name)
     default = field.default
@@ -43,7 +42,7 @@ def float2LineEdit(field: dataclasses.Field):
 
 
 def str2LineEdit(field: dataclasses.Field):
-    widget = QLineEdit()
+    widget = StrLineEdit()
     widget.setPlaceholderText(field.name)
     default = field.default
     if default != dataclasses.MISSING:
