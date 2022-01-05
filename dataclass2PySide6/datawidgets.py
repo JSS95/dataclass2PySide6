@@ -10,15 +10,44 @@ Every widget has following methods and attributes:
 """
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
-from PySide6.QtWidgets import QCheckBox, QLineEdit
+from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QGroupBox,
+    QHBoxLayout)
+from typing import List
 
 
 __all__ = [
+    "type2Widget",
     "BoolCheckBox",
     "IntLineEdit",
     "FloatLineEdit",
     "StrLineEdit",
+    "TupleGroupBox",
 ]
+
+
+def type2Widget(type_or_annot) -> QWidget:
+    """
+    Return the widget instance for given type annotation.
+
+    """
+    if isinstance(type_or_annot, type) and issubclass(type_or_annot, bool):
+        return BoolCheckBox()
+    if isinstance(type_or_annot, type) and issubclass(type_or_annot, int):
+        return IntLineEdit()
+    if isinstance(type_or_annot, type) and issubclass(type_or_annot, float):
+        return FloatLineEdit()
+    if isinstance(type_or_annot, type) and issubclass(type_or_annot, str):
+        return StrLineEdit()
+    if getattr(type_or_annot, "__origin__", None) is tuple: # Tuple
+        args = getattr(type_or_annot, "__args__", None)
+        if args is None:
+            raise TypeError("%s does not have argument type" % type_or_annot)
+        if Ellipsis in args:
+            txt = "Number of arguments of %s not fixed" % type_or_annot
+            raise TypeError(txt)
+        widgets = [type2Widget(arg) for arg in args]
+        return TupleGroupBox.fromWidgets(widgets)
+    raise TypeError("Unknown type or annotation : %s" % type_or_annot)
 
 
 class BoolCheckBox(QCheckBox):
@@ -253,3 +282,77 @@ class StrLineEdit(QLineEdit):
 
     def emitDataValueEdited(self, text: str):
         self.dataValueEdited.emit(str(text))
+
+
+class TupleGroupBox(QGroupBox):
+    """
+    Widget to represent the tuple data with fixed number of items.
+
+    Standard way to construct this widget is by :meth:`fromWidgets`
+    class method. Widgets must be other data widget, e.g.
+    :class:`IntLineEdit` or :class:`FloatLineEdit`.
+
+    :meth:`dataValue` returns the current tuple value.
+
+    When data value of subwidgets is changed, :attr:`dataValueChanged`
+    signal is emiited.
+
+    :meth:`setDataValue` changes the values of subwidgets
+
+    Examples
+    ========
+
+    >>> from PySide6.QtWidgets import QApplication
+    >>> import sys
+    >>> from dataclass2PySide6 import (BoolCheckBox, IntLineEdit,
+    ...     TupleGroupBox)
+    >>> def runGUI():
+    ...     app = QApplication(sys.argv)
+    ...     widgets = [BoolCheckBox(), IntLineEdit()]
+    ...     widget = TupleGroupBox.fromWidgets(widgets)
+    ...     geometry = widget.screen().availableGeometry()
+    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
+    ...     widget.show()
+    ...     app.exec()
+    ...     app.quit()
+    >>> runGUI() # doctest: +SKIP
+
+    """
+    dataValueChanged = Signal(tuple)
+
+    @classmethod
+    def fromWidgets(cls, widgets: List[QWidget]) -> "TupleGroupBox":
+        obj = cls()
+        obj._widgets = widgets
+        obj.initWidgets()
+        obj.initUI()
+        return obj
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._widgets = []
+
+    def widgets(self) -> List[QWidget]:
+        return self._widgets
+
+    def initWidgets(self):
+        for widget in self.widgets():
+            widget.dataValueChanged.connect(self.emitDataValueChanged)
+
+    def initUI(self):
+        layout = QHBoxLayout()
+        for widget in self.widgets():
+            layout.addWidget(widget)
+        self.setLayout(layout)
+
+    def dataValue(self) -> tuple:
+        return tuple(widget.dataValue() for widget in self.widgets())
+
+    def setDataValue(self, value: tuple):
+        for w, v in zip(self.widgets(), value):
+            w.setDataValue(v)
+        self.emitDataValueChanged()
+
+    def emitDataValueChanged(self):
+        value = self.dataValue()
+        self.dataValueChanged.emit(value)

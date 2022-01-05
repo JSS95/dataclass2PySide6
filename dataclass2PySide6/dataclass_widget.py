@@ -1,7 +1,8 @@
 import dataclasses
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout
-from .rules import bool2QCheckBox, int2LineEdit, float2LineEdit, str2LineEdit
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QCheckBox, QLineEdit,
+    QGroupBox)
+from .datawidgets import type2Widget
 from typing import Dict
 
 
@@ -38,14 +39,16 @@ class DataclassWidget(QWidget):
     Examples
     ========
 
-    >>> import dataclasses
+    >>> from dataclasses import dataclass
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
+    >>> from typing import Tuple
     >>> from dataclass2PySide6 import DataclassWidget
-    >>> @dataclasses.dataclass
+    >>> @dataclass
     ... class DataClass:
     ...     a: bool
     ...     b: int
+    ...     c: Tuple[int, Tuple[bool, int]]
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = DataclassWidget.fromDataclass(DataClass)
@@ -86,16 +89,19 @@ class DataclassWidget(QWidget):
 
     def field2Widget(self, field: dataclasses.Field) -> QWidget:
         """Return a widget for *field*."""
-        if issubclass(field.type, bool):
-            widget = bool2QCheckBox(field)
-        elif issubclass(field.type, int):
-            widget = int2LineEdit(field)
-        elif issubclass(field.type, float):
-            widget = float2LineEdit(field)
-        elif issubclass(field.type, str):
-            widget = str2LineEdit(field)
-        else:
-            raise TypeError("Unknown type: %s" % field.type)
+        widget = type2Widget(field.type)
+        default = field.default
+
+        if isinstance(widget, QCheckBox):
+            widget.setText(field.name)
+        elif isinstance(widget, QLineEdit):
+            widget.setPlaceholderText(field.name)
+        elif isinstance(widget, QGroupBox):
+            widget.setTitle(field.name)
+
+        if default != dataclasses.MISSING:
+            widget.setDataValue(default)
+
         return widget
 
     def dataclassType(self) -> type:

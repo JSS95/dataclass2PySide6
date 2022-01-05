@@ -1,7 +1,7 @@
 import dataclasses
 import pytest
-from PySide6.QtWidgets import QCheckBox, QLineEdit
-from dataclass2PySide6 import DataclassWidget, IntLineEdit, FloatLineEdit
+from dataclass2PySide6 import DataclassWidget
+from typing import Tuple
 
 
 @pytest.fixture
@@ -9,15 +9,19 @@ def dclswidget(qtbot):
 
     @dataclasses.dataclass
     class DataClass:
-        a: bool
-        b: int
-        c: float
-        d: str
-        e: bool = True
-        f: bool = False
-        g: int = 42
-        h: float = 4.2
-        i: str = "foo"
+        bool1: bool
+        int1: int
+        float1: float
+        str1: str
+        Tuple1: Tuple[bool, int]
+        Tuple2: Tuple[bool, Tuple[int]]
+        bool2: bool = True
+        bool3: bool = False
+        int2: int = 42
+        float2: float = 4.2
+        str2: str = "foo"
+        Tuple3: Tuple[bool, int] = (True, 1)
+        Tuple4: Tuple[bool, Tuple[int]] = (False, (2,))
 
     widget = DataclassWidget.fromDataclass(DataClass)
     return widget
@@ -25,68 +29,104 @@ def dclswidget(qtbot):
 
 def test_DataclassWidget_construction(qtbot, dclswidget):
 
-    widget_a = dclswidget.widgets()["a"]
-    assert widget_a.isCheckable()
-    assert not widget_a.isChecked()
-    assert widget_a.text() == "a"
-    assert isinstance(widget_a, QCheckBox)
+    widget_bool1 = dclswidget.widgets()["bool1"]
+    assert not widget_bool1.isChecked()
+    assert widget_bool1.text() == "bool1"
 
-    widget_b = dclswidget.widgets()["b"]
-    assert widget_b.placeholderText() == "b"
-    assert widget_b.text() == ""
-    assert isinstance(widget_b, IntLineEdit)
+    widget_int1 = dclswidget.widgets()["int1"]
+    assert widget_int1.placeholderText() == "int1"
+    assert widget_int1.text() == ""
+    assert widget_int1.dataValue() == 0
 
-    widget_c = dclswidget.widgets()["c"]
-    assert widget_c.placeholderText() == "c"
-    assert widget_c.text() == ""
-    assert isinstance(widget_c, FloatLineEdit)
+    widget_float1 = dclswidget.widgets()["float1"]
+    assert widget_float1.placeholderText() == "float1"
+    assert widget_float1.text() == ""
+    assert widget_float1.dataValue() == float(0)
 
-    widget_d = dclswidget.widgets()["d"]
-    assert widget_d.placeholderText() == "d"
-    assert widget_d.text() == ""
-    assert isinstance(widget_d, QLineEdit)
+    widget_str1 = dclswidget.widgets()["str1"]
+    assert widget_str1.placeholderText() == "str1"
+    assert widget_str1.text() == ""
 
-    widget_e = dclswidget.widgets()["e"]
-    assert widget_e.isChecked()
+    widget_Tuple1 = dclswidget.widgets()["Tuple1"]
+    assert widget_Tuple1.title() == "Tuple1"
+    assert not widget_Tuple1.widgets()[0].isChecked()
+    assert widget_Tuple1.widgets()[1].text() == ""
+    assert widget_Tuple1.widgets()[1].dataValue() == 0
 
-    widget_f = dclswidget.widgets()["f"]
-    assert not widget_f.isChecked()
+    widget_Tuple2 = dclswidget.widgets()["Tuple2"]
+    assert not widget_Tuple2.widgets()[0].isChecked()
+    assert widget_Tuple2.widgets()[1].widgets()[0].text() == ""
+    assert widget_Tuple2.widgets()[1].widgets()[0].dataValue() == 0
 
-    widget_g = dclswidget.widgets()["g"]
-    assert widget_g.text() == "42"
+    widget_bool2 = dclswidget.widgets()["bool2"]
+    assert widget_bool2.isChecked()
 
-    widget_h = dclswidget.widgets()["h"]
-    assert widget_h.text() == "4.2"
+    widget_bool3 = dclswidget.widgets()["bool3"]
+    assert not widget_bool3.isChecked()
 
-    widget_i = dclswidget.widgets()["i"]
-    assert widget_i.text() == "foo"
+    widget_int2 = dclswidget.widgets()["int2"]
+    assert widget_int2.text() == "42"
+    assert widget_int2.dataValue() == 42
+
+    widget_float2 = dclswidget.widgets()["float2"]
+    assert widget_float2.text() == "4.2"
+    assert widget_float2.dataValue() == 4.2
+
+    widget_str2 = dclswidget.widgets()["str2"]
+    assert widget_str2.text() == "foo"
+
+    widget_Tuple3 = dclswidget.widgets()["Tuple3"]
+    assert widget_Tuple3.widgets()[0].isChecked()
+    assert widget_Tuple3.widgets()[1].text() == "1"
+    assert widget_Tuple3.widgets()[1].dataValue() == 1
+
+    widget_Tuple4 = dclswidget.widgets()["Tuple4"]
+    assert not widget_Tuple4.widgets()[0].isChecked()
+    assert widget_Tuple4.widgets()[1].widgets()[0].text() == "2"
+    assert widget_Tuple4.widgets()[1].widgets()[0].dataValue() == 2
 
 
 def test_DataclassWidget_dataChanged(qtbot, dclswidget):
     with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
-        dclswidget.widgets()["a"].setChecked(True)
+        dclswidget.widgets()["bool1"].setChecked(True)
 
     with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
-        dclswidget.widgets()["b"].setText("42")
+        dclswidget.widgets()["int1"].setText("42")
 
     with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
-        dclswidget.widgets()["c"].setText("4.2")
+        dclswidget.widgets()["float1"].setText("4.2")
 
     with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
-        dclswidget.widgets()["d"].setText("foo")
+        dclswidget.widgets()["str1"].setText("foo")
+
+    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+        dclswidget.widgets()["Tuple1"].widgets()[0].setChecked(True)
+
+    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+        dclswidget.widgets()["Tuple1"].widgets()[1].setText("42")
+
+    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+        dclswidget.widgets()["Tuple2"].widgets()[1].widgets()[0].setText("42")
 
 
 def test_DataclassWidget_currentData(qtbot, dclswidget):
     dclstype = dclswidget.dataclassType()
 
-    assert dclswidget.currentData() == dclstype(a=False,
-                                                b=int(0),
-                                                c=float(0),
-                                                d="")
+    assert dclswidget.currentData() == dclstype(bool1=False,
+                                                int1=int(0),
+                                                float1=float(0),
+                                                str1="",
+                                                Tuple1=(False, 0),
+                                                Tuple2=(False, (0,)))
 
 
 def test_DataclassWidget_applyData(qtbot, dclswidget):
-    dcls = dclswidget.dataclassType()(a=True, b=42, c=4.2, d="foo")
+    dc = dclswidget.dataclassType()(bool1=True,
+                                    int1=42,
+                                    float1=4.2,
+                                    str1="foo",
+                                    Tuple1=(False, 0),
+                                    Tuple2=(False, (0,)))
 
-    dclswidget.applyData(dcls)
-    assert dclswidget.currentData() == dcls
+    dclswidget.applyData(dc)
+    assert dclswidget.currentData() == dc
