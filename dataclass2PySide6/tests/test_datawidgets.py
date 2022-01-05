@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 import pytest
 from dataclass2PySide6 import (type2Widget, BoolCheckBox, IntLineEdit,
-    FloatLineEdit, StrLineEdit, MultiLineEdits)
+    FloatLineEdit, StrLineEdit, TupleGroupBox)
 from typing import Tuple
 
 
@@ -15,10 +15,11 @@ def test_type2Widget(qtbot):
         type2Widget(Tuple)
     with pytest.raises(TypeError):
         type2Widget(Tuple[int, ...])
-    tuplewidget = type2Widget(Tuple[int, float, str])
-    assert isinstance(tuplewidget.lineEdits()[0], IntLineEdit)
-    assert isinstance(tuplewidget.lineEdits()[1], FloatLineEdit)
-    assert isinstance(tuplewidget.lineEdits()[2], StrLineEdit)
+    tuplewidget = type2Widget(Tuple[bool, int, float, str])
+    assert isinstance(tuplewidget.widgets()[0], BoolCheckBox)
+    assert isinstance(tuplewidget.widgets()[1], IntLineEdit)
+    assert isinstance(tuplewidget.widgets()[2], FloatLineEdit)
+    assert isinstance(tuplewidget.widgets()[3], StrLineEdit)
 
 
 def test_BoolCheckBox(qtbot):
@@ -144,13 +145,13 @@ def test_StrLineEdit(qtbot):
     assert widget.dataValue() == "bar"
 
 
-def test_MultiLineEdits(qtbot):
-    line_edits = [IntLineEdit(), FloatLineEdit()]
-    widget = MultiLineEdits.fromLineEdits(line_edits)
+def test_TupleGroupBox(qtbot):
+    widgets = [IntLineEdit(), FloatLineEdit()]
+    widget = TupleGroupBox.fromWidgets(widgets)
 
     # test dataValueChanged signal
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
                           check_params_cb=lambda val: val == (42, 0.0)):
-        widget.lineEdits()[0].setDataValue(42)
+        widget.widgets()[0].setDataValue(42)
     assert widget.dataValue() == (42, 0.0)

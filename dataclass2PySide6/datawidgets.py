@@ -21,7 +21,7 @@ __all__ = [
     "IntLineEdit",
     "FloatLineEdit",
     "StrLineEdit",
-    "MultiLineEdits",
+    "TupleGroupBox",
 ]
 
 
@@ -46,7 +46,7 @@ def type2Widget(type_or_annot) -> QWidget:
             txt = "Number of arguments of %s not fixed" % type_or_annot
             raise TypeError(txt)
         widgets = [type2Widget(arg) for arg in args]
-        return MultiLineEdits.fromLineEdits(widgets)
+        return TupleGroupBox.fromWidgets(widgets)
     raise TypeError("Unknown type or annotation : %s" % type_or_annot)
 
 
@@ -284,32 +284,32 @@ class StrLineEdit(QLineEdit):
         self.dataValueEdited.emit(str(text))
 
 
-class MultiLineEdits(QGroupBox):
+class TupleGroupBox(QGroupBox):
     """
-    Widget which wraps multiple line edits. It is used to represent the
-    tuple data with fixed number of items.
+    Widget to represent the tuple data with fixed number of items.
 
-    Standard way to construct this widget is by :meth:`fromLineEdits`
-    class method. Line edit widgets must be other data widget, e.g.
+    Standard way to construct this widget is by :meth:`fromWidgets`
+    class method. Widgets must be other data widget, e.g.
     :class:`IntLineEdit` or :class:`FloatLineEdit`.
 
     :meth:`dataValue` returns the current tuple value.
 
-    When data value of line edit is changed, :attr:`dataValueChanged`
+    When data value of subwidgets is changed, :attr:`dataValueChanged`
     signal is emiited.
 
-    :meth:`setDataValue` changes the texts of line edits.
+    :meth:`setDataValue` changes the values of subwidgets
 
     Examples
     ========
 
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
-    >>> from dataclass2PySide6 import IntLineEdit, MultiLineEdits
+    >>> from dataclass2PySide6 import (BoolCheckBox, IntLineEdit,
+    ...     TupleGroupBox)
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
-    ...     line_edits = [IntLineEdit(), IntLineEdit()]
-    ...     widget = MultiLineEdits.fromLineEdits(line_edits)
+    ...     widgets = [BoolCheckBox(), IntLineEdit()]
+    ...     widget = TupleGroupBox.fromWidgets(widgets)
     ...     geometry = widget.screen().availableGeometry()
     ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
@@ -321,35 +321,35 @@ class MultiLineEdits(QGroupBox):
     dataValueChanged = Signal(tuple)
 
     @classmethod
-    def fromLineEdits(cls, line_edits: List[QLineEdit]) -> "MultiLineEdits":
+    def fromWidgets(cls, widgets: List[QWidget]) -> "TupleGroupBox":
         obj = cls()
-        obj._line_edits = line_edits
+        obj._widgets = widgets
         obj.initWidgets()
         obj.initUI()
         return obj
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._line_edits = []
+        self._widgets = []
 
-    def lineEdits(self) -> List[QLineEdit]:
-        return self._line_edits
+    def widgets(self) -> List[QWidget]:
+        return self._widgets
 
     def initWidgets(self):
-        for widget in self.lineEdits():
+        for widget in self.widgets():
             widget.dataValueChanged.connect(self.emitDataValueChanged)
 
     def initUI(self):
         layout = QHBoxLayout()
-        for widget in self.lineEdits():
+        for widget in self.widgets():
             layout.addWidget(widget)
         self.setLayout(layout)
 
     def dataValue(self) -> tuple:
-        return tuple(widget.dataValue() for widget in self.lineEdits())
+        return tuple(widget.dataValue() for widget in self.widgets())
 
     def setDataValue(self, value: tuple):
-        for w, v in zip(self.lineEdits(), value):
+        for w, v in zip(self.widgets(), value):
             w.setDataValue(value)
         self.emitDataValueChanged()
 
