@@ -1,6 +1,6 @@
 import dataclasses
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout
 from .datawidgets import type2Widget
 from typing import Dict
 
@@ -18,7 +18,7 @@ class _DefaultDataclass:
     pass
 
 
-class DataclassWidget(QWidget):
+class DataclassWidget(QGroupBox):
     """
     Widget which represents the fields of dataclass type.
 
@@ -31,12 +31,15 @@ class DataclassWidget(QWidget):
     ``dataValueChanged`` signal which emits the changed value,
     and ``setDataValue()`` slot which updates the current value.
 
-    :meth:`currentData` returns the current states of the widgets as
-    dataclass instance. :meth:`applyData` updates the current states of
+    :meth:`dataValue` returns the current states of the widgets as
+    dataclass instance. :meth:`setDataValue` updates the current states of
     the widgets with dataclass instance.
 
     Examples
     ========
+
+    Widgets are automatically generated from type annotations. Nested
+    dataclasses are recursively constructed.
 
     >>> from dataclasses import dataclass
     >>> from PySide6.QtWidgets import QApplication
@@ -44,13 +47,15 @@ class DataclassWidget(QWidget):
     >>> from typing import Tuple
     >>> from dataclass2PySide6 import DataclassWidget
     >>> @dataclass
-    ... class DataClass:
-    ...     a: bool
-    ...     b: int
-    ...     c: Tuple[int, Tuple[bool, int]]
+    ... class DataClass1:
+    ...     a: Tuple[int, Tuple[bool, int]]
+    >>> @dataclass
+    ... class DataClass2:
+    ...     x: str
+    ...     y: DataClass1
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
-    ...     widget = DataclassWidget.fromDataclass(DataClass)
+    ...     widget = DataclassWidget.fromDataclass(DataClass2)
     ...     geometry = widget.screen().availableGeometry()
     ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
@@ -59,7 +64,7 @@ class DataclassWidget(QWidget):
     >>> runGUI() # doctest: +SKIP
     """
 
-    dataChanged = Signal()
+    dataValueChanged = Signal()
 
     @classmethod
     def fromDataclass(cls, datacls: type) -> "DataclassWidget":
@@ -88,7 +93,10 @@ class DataclassWidget(QWidget):
 
     def field2Widget(self, field: dataclasses.Field) -> QWidget:
         """Return a widget for *field*."""
-        widget = type2Widget(field.type)
+        if dataclasses.is_dataclass(field.type):
+            widget = type(self).fromDataclass(field.type)
+        else:
+            widget = type2Widget(field.type)
         widget.setDataName(field.name)
 
         default = field.default
@@ -101,6 +109,12 @@ class DataclassWidget(QWidget):
         """Dataclass type which is used to construct *self*."""
         return self._dataclass_type
 
+    def dataName(self) -> str:
+        return self.title()
+
+    def setDataName(self, name: str):
+        self.setTitle(name)
+
     def widgets(self) -> Dict[str, QWidget]:
         """
         Sub-widgets which represent the fields of :meth:`dataclassType`.
@@ -110,7 +124,7 @@ class DataclassWidget(QWidget):
     def initWidgets(self):
         """Initialize the widgets in :meth:`widgets`."""
         for widget in self.widgets().values():
-            widget.dataValueChanged.connect(self.emitDataChanged)
+            widget.dataValueChanged.connect(self.emitDataValueChanged)
 
     def initUI(self):
         """Initialize the UI with :meth:`widgets`."""
@@ -119,10 +133,10 @@ class DataclassWidget(QWidget):
             layout.addWidget(widget)
         self.setLayout(layout)
 
-    def emitDataChanged(self):
-        self.dataChanged.emit()
+    def emitDataValueChanged(self):
+        self.dataValueChanged.emit()
 
-    def currentData(self) -> object:
+    def dataValue(self) -> object:
         """
         Return the current state of widgets as dataclass instance.
 
@@ -137,7 +151,7 @@ class DataclassWidget(QWidget):
         data = self.dataclassType()(**args)
         return data
 
-    def applyData(self, data: object):
+    def setDataValue(self, data: object):
         """
         Apply the dataclass instance to data widgets states.
 
