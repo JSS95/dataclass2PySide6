@@ -115,18 +115,18 @@ class IntLineEdit(QLineEdit):
 
     def dataValue(self) -> int:
         text = self.text()
-        val = int(text) if text else int(0)
+        val = int(text) if text else self.defaultDataValue()
         return val
 
     def setDataValue(self, value: int):
         self.setText(str(value))
 
     def emitDataValueChanged(self, text: str):
-        val = int(text) if text else int(0)
+        val = int(text) if text else self.defaultDataValue()
         self.dataValueChanged.emit(val)
 
     def emitDataValueEdited(self, text: str):
-        val = int(text) if text else int(0)
+        val = int(text) if text else self.defaultDataValue()
         self.dataValueEdited.emit(val)
 
 
@@ -179,18 +179,18 @@ class FloatLineEdit(QLineEdit):
 
     def dataValue(self) -> float:
         text = self.text()
-        val = float(text) if text else float(0)
+        val = float(text) if text else self.defaultDataValue()
         return val
 
     def setDataValue(self, value: float):
         self.setText(str(value))
 
     def emitDataValueChanged(self, text: str):
-        val = float(text) if text else float(0)
+        val = float(text) if text else self.defaultDataValue()
         self.dataValueChanged.emit(val)
 
     def emitDataValueEdited(self, text: str):
-        val = float(text) if text else float(0)
+        val = float(text) if text else self.defaultDataValue()
         self.dataValueEdited.emit(val)
 
 

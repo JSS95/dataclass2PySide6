@@ -20,12 +20,23 @@ def test_BoolCheckBox(qtbot):
 def test_IntLineEdit(qtbot):
     widget = IntLineEdit()
 
+    # test default data value
+    assert widget.dataValue() == 0
+    widget.setDefaultDataValue(1)
+    assert widget.dataValue() == 1
+    widget.setDefaultDataValue(0)
+
     # test dataValueChanged signal
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
                           check_params_cb=lambda val: val == 1):
         widget.setDataValue("1")
     assert widget.dataValue() == 1
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val == 0):
+        widget.setDataValue("")
+    assert widget.dataValue() == 0
 
     # test dataValueEdited signal
     widget.clear()
@@ -51,12 +62,23 @@ def test_IntLineEdit(qtbot):
 def test_FloatLineEdit(qtbot):
     widget = FloatLineEdit()
 
+    # test default data value
+    assert widget.dataValue() == float(0)
+    widget.setDefaultDataValue(float(1))
+    assert widget.dataValue() == float(1)
+    widget.setDefaultDataValue(float(0))
+
     # test dataValueChanged signal
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
                           check_params_cb=lambda val: val == 1.2):
         widget.setDataValue("1.2")
     assert widget.dataValue() == 1.2
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val == float(0)):
+        widget.setDataValue("")
+    assert widget.dataValue() == float(0)
 
     # test dataValueEdited signal
     widget.clear()
