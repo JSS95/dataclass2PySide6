@@ -1,4 +1,5 @@
 import dataclasses
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 from .rules import bool2QCheckBox, int2LineEdit, float2LineEdit, str2LineEdit
 from typing import Dict
@@ -48,6 +49,8 @@ class DataclassWidget(QWidget):
     >>> runGUI() # doctest: +SKIP    
     """
 
+    dataChanged = Signal()
+
     @classmethod
     def fromDataclass(cls, datacls: type) -> "DataclassWidget":
         """
@@ -64,6 +67,7 @@ class DataclassWidget(QWidget):
         obj._dataclass_type = datacls
         fields = dataclasses.fields(datacls)
         obj._widgets = {f.name: obj.field2Widget(f) for f in fields}
+        obj.initWidgets()
         obj.initUI()
         return obj
 
@@ -73,10 +77,7 @@ class DataclassWidget(QWidget):
         self._widgets = {}
 
     def field2Widget(self, field: dataclasses.Field) -> QWidget:
-        """
-        Return a widget for *field*.
-
-        """
+        """Return a widget for *field*."""
         if issubclass(field.type, bool):
             widget = bool2QCheckBox(field)
         elif issubclass(field.type, int):
@@ -90,25 +91,26 @@ class DataclassWidget(QWidget):
         return widget
 
     def dataclassType(self) -> type:
-        """
-        Dataclass type which is used to construct *self*.
-
-        """
+        """Dataclass type which is used to construct *self*."""
         return self._dataclass_type
 
     def widgets(self) -> Dict[str, QWidget]:
         """
         Sub-widgets which represent the fields of :meth:`dataclassType`.
-
         """
         return self._widgets
 
-    def initUI(self):
-        """
-        Initialize the UI with :meth:`widgets`.
+    def initWidgets(self):
+        """Initialize the widgets in :meth:`widgets`."""
+        for widget in self.widgets().values():
+            widget.dataValueChanged.connect(self.emitDataChanged)
 
-        """
+    def initUI(self):
+        """Initialize the UI with :meth:`widgets`."""
         layout = QVBoxLayout()
         for widget in self.widgets().values():
             layout.addWidget(widget)
         self.setLayout(layout)
+
+    def emitDataChanged(self):
+        self.dataChanged.emit()

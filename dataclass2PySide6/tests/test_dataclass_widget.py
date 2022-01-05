@@ -60,3 +60,17 @@ def test_DataclassWidget_construction(qtbot, dclswidget):
 
     widget_i = dclswidget.widgets()["i"]
     assert widget_i.text() == "foo"
+
+
+def test_DataclassWidget_dataChanged(qtbot, dclswidget):
+    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+        dclswidget.widgets()["a"].setChecked(True)
+
+    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+        dclswidget.widgets()["b"].setText("42")
+
+    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+        dclswidget.widgets()["c"].setText("4.2")
+
+    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+        dclswidget.widgets()["d"].setText("foo")
