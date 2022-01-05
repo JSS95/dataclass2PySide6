@@ -108,6 +108,12 @@ class IntLineEdit(QLineEdit):
         self.textEdited.connect(self.emitDataValueEdited)
 
     def defaultDataValue(self) -> int:
+        """
+        Default value for empty text.
+
+        This is different from the default value of dataclass field,
+        which is used to initialize the widget text.
+        """
         return self._default_data_value
 
     def setDefaultDataValue(self, val: int):
@@ -172,6 +178,12 @@ class FloatLineEdit(QLineEdit):
         self.textEdited.connect(self.emitDataValueEdited)
 
     def defaultDataValue(self) -> float:
+        """
+        Default value for empty text.
+
+        This is different from the default value of dataclass field,
+        which is used to initialize the widget text.
+        """
         return self._default_data_value
 
     def setDefaultDataValue(self, val: float):
@@ -192,7 +204,6 @@ class FloatLineEdit(QLineEdit):
     def emitDataValueEdited(self, text: str):
         val = float(text) if text else self.defaultDataValue()
         self.dataValueEdited.emit(val)
-
 
 
 class StrLineEdit(QLineEdit):
