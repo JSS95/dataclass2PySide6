@@ -14,6 +14,7 @@ __all__ = [
     "BoolCheckBox",
     "IntLineEdit",
     "FloatLineEdit",
+    "StrLineEdit",
 ]
 
 
@@ -62,7 +63,7 @@ class IntLineEdit(QLineEdit):
     Line edit for integer value.
 
     The validator is set as ``QIntValidator``. When text is changed or
-    edited, ``dataValueChanged`` and ``dataValueEdited`` signals are
+    edited, ``dataValueChanged`` or ``dataValueEdited`` signals are
     emitted.
 
     :meth:`dataValue` returns the current integer value, or ``None`` if
@@ -113,7 +114,7 @@ class FloatLineEdit(QLineEdit):
     Line edit for float value.
 
     The validator is set as ``QDoubleValidator``. When text is changed
-    or edited, ``dataValueChanged`` and ``dataValueEdited`` signals are
+    or edited, ``dataValueChanged`` or ``dataValueEdited`` signals are
     emitted.
 
     :meth:`dataValue` returns the current float value, or ``None`` if 
@@ -157,3 +158,47 @@ class FloatLineEdit(QLineEdit):
     def emitValueEdited(self, text: str):
         if text:
             self.dataValueEdited.emit(float(text))
+
+
+class StrLineEdit(QLineEdit):
+    """
+    Line edit for str value.
+
+    When text is changed or edited, ``dataValueChanged`` or
+    ``dataValueEdited`` signals are emitted.
+
+    :meth:`dataValue` returns the current str value.
+
+    Examples
+    ========
+
+    >>> from PySide6.QtWidgets import QApplication
+    >>> import sys
+    >>> from dataclass2PySide6 import StrLineEdit
+    >>> def runGUI():
+    ...     app = QApplication(sys.argv)
+    ...     widget = StrLineEdit()
+    ...     geometry = widget.screen().availableGeometry()
+    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
+    ...     widget.show()
+    ...     app.exec()
+    ...     app.quit()
+    >>> runGUI() # doctest: +SKIP
+    """
+    dataValueChanged = Signal(str)
+    dataValueEdited = Signal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.textChanged.connect(self.emitValueChanged)
+        self.textEdited.connect(self.emitValueEdited)
+
+    def dataValue(self) -> str:
+        return self.text()
+
+    def emitValueChanged(self, text: str):
+        self.dataValueChanged.emit(text)
+
+    def emitValueEdited(self, text: str):
+        self.dataValueEdited.emit(text)
