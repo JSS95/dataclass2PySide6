@@ -10,7 +10,7 @@ Every widget has following methods and attributes:
 """
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
-from PySide6.QtWidgets import QCheckBox, QLineEdit, QWidget, QHBoxLayout
+from PySide6.QtWidgets import QCheckBox, QLineEdit, QGroupBox, QHBoxLayout
 from typing import List
 
 
@@ -257,7 +257,7 @@ class StrLineEdit(QLineEdit):
         self.dataValueEdited.emit(str(text))
 
 
-class MultiLineEdits(QWidget):
+class MultiLineEdits(QGroupBox):
     """
     Widget which wraps multiple line edits. It is used to represent the
     tuple data with fixed number of items.
