@@ -37,8 +37,8 @@ $ pip install dataclass2PySide6
 # How to use
 
 1. Create dataclass widget using ``DataclassWidget.fromDataclass()``.
-2. Get current state of widget with ``dataChanged`` signal and ``currentData()`` method.
-3. Update the current state of widget with ``applyData()`` method.
+2. Get current state of widget with ``dataValueChanged`` signal and ``dataValue()`` method.
+3. Update the current state of widget with ``setDataValue()`` method.
 
 User may subclass ``DataclassWidget`` to define own datclass widget.
 Refer to the docstring for detailed description.

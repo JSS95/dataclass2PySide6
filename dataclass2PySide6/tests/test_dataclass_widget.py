@@ -86,33 +86,33 @@ def test_DataclassWidget_construction(qtbot, dclswidget):
     assert widget_Tuple4.widgets()[1].widgets()[0].dataValue() == 2
 
 
-def test_DataclassWidget_dataChanged(qtbot, dclswidget):
-    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+def test_DataclassWidget_dataValueChanged(qtbot, dclswidget):
+    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
         dclswidget.widgets()["bool1"].setChecked(True)
 
-    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
         dclswidget.widgets()["int1"].setText("42")
 
-    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
         dclswidget.widgets()["float1"].setText("4.2")
 
-    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
         dclswidget.widgets()["str1"].setText("foo")
 
-    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
         dclswidget.widgets()["Tuple1"].widgets()[0].setChecked(True)
 
-    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
         dclswidget.widgets()["Tuple1"].widgets()[1].setText("42")
 
-    with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
+    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
         dclswidget.widgets()["Tuple2"].widgets()[1].widgets()[0].setText("42")
 
 
-def test_DataclassWidget_currentData(qtbot, dclswidget):
+def test_DataclassWidget_dataValue(qtbot, dclswidget):
     dclstype = dclswidget.dataclassType()
 
-    assert dclswidget.currentData() == dclstype(bool1=False,
+    assert dclswidget.dataValue() == dclstype(bool1=False,
                                                 int1=int(0),
                                                 float1=float(0),
                                                 str1="",
@@ -120,7 +120,7 @@ def test_DataclassWidget_currentData(qtbot, dclswidget):
                                                 Tuple2=(False, (0,)))
 
 
-def test_DataclassWidget_applyData(qtbot, dclswidget):
+def test_DataclassWidget_setDataValue(qtbot, dclswidget):
     dc = dclswidget.dataclassType()(bool1=True,
                                     int1=42,
                                     float1=4.2,
@@ -128,5 +128,5 @@ def test_DataclassWidget_applyData(qtbot, dclswidget):
                                     Tuple1=(False, 0),
                                     Tuple2=(False, (0,)))
 
-    dclswidget.applyData(dc)
-    assert dclswidget.currentData() == dc
+    dclswidget.setDataValue(dc)
+    assert dclswidget.dataValue() == dc

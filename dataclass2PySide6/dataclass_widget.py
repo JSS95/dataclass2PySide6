@@ -31,8 +31,8 @@ class DataclassWidget(QWidget):
     ``dataValueChanged`` signal which emits the changed value,
     and ``setDataValue()`` slot which updates the current value.
 
-    :meth:`currentData` returns the current states of the widgets as
-    dataclass instance. :meth:`applyData` updates the current states of
+    :meth:`dataValue` returns the current states of the widgets as
+    dataclass instance. :meth:`setDataValue` updates the current states of
     the widgets with dataclass instance.
 
     Examples
@@ -59,7 +59,7 @@ class DataclassWidget(QWidget):
     >>> runGUI() # doctest: +SKIP
     """
 
-    dataChanged = Signal()
+    dataValueChanged = Signal()
 
     @classmethod
     def fromDataclass(cls, datacls: type) -> "DataclassWidget":
@@ -110,7 +110,7 @@ class DataclassWidget(QWidget):
     def initWidgets(self):
         """Initialize the widgets in :meth:`widgets`."""
         for widget in self.widgets().values():
-            widget.dataValueChanged.connect(self.emitDataChanged)
+            widget.dataValueChanged.connect(self.emitDataValueChanged)
 
     def initUI(self):
         """Initialize the UI with :meth:`widgets`."""
@@ -119,10 +119,10 @@ class DataclassWidget(QWidget):
             layout.addWidget(widget)
         self.setLayout(layout)
 
-    def emitDataChanged(self):
-        self.dataChanged.emit()
+    def emitDataValueChanged(self):
+        self.dataValueChanged.emit()
 
-    def currentData(self) -> object:
+    def dataValue(self) -> object:
         """
         Return the current state of widgets as dataclass instance.
 
@@ -137,7 +137,7 @@ class DataclassWidget(QWidget):
         data = self.dataclassType()(**args)
         return data
 
-    def applyData(self, data: object):
+    def setDataValue(self, data: object):
         """
         Apply the dataclass instance to data widgets states.
 
