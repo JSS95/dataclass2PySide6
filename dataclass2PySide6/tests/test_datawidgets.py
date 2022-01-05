@@ -1,6 +1,24 @@
 from PySide6.QtCore import Qt
-from dataclass2PySide6 import (BoolCheckBox, IntLineEdit, FloatLineEdit,
-    StrLineEdit, MultiLineEdits)
+import pytest
+from dataclass2PySide6 import (type2Widget, BoolCheckBox, IntLineEdit,
+    FloatLineEdit, StrLineEdit, MultiLineEdits)
+from typing import Tuple
+
+
+def test_type2Widget(qtbot):
+    assert isinstance(type2Widget(bool), BoolCheckBox)
+    assert isinstance(type2Widget(int), IntLineEdit)
+    assert isinstance(type2Widget(float), FloatLineEdit)
+    assert isinstance(type2Widget(str), StrLineEdit)
+
+    with pytest.raises(TypeError):
+        type2Widget(Tuple)
+    with pytest.raises(TypeError):
+        type2Widget(Tuple[int, ...])
+    tuplewidget = type2Widget(Tuple[int, float, str])
+    assert isinstance(tuplewidget.lineEdits()[0], IntLineEdit)
+    assert isinstance(tuplewidget.lineEdits()[1], FloatLineEdit)
+    assert isinstance(tuplewidget.lineEdits()[2], StrLineEdit)
 
 
 def test_BoolCheckBox(qtbot):

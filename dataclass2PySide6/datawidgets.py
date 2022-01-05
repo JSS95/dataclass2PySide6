@@ -10,17 +10,44 @@ Every widget has following methods and attributes:
 """
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
-from PySide6.QtWidgets import QCheckBox, QLineEdit, QGroupBox, QHBoxLayout
+from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QGroupBox,
+    QHBoxLayout)
 from typing import List
 
 
 __all__ = [
+    "type2Widget",
     "BoolCheckBox",
     "IntLineEdit",
     "FloatLineEdit",
     "StrLineEdit",
     "MultiLineEdits",
 ]
+
+
+def type2Widget(type_or_annot) -> QWidget:
+    """
+    Return the widget instance for given type annotation.
+
+    """
+    if isinstance(type_or_annot, type) and issubclass(type_or_annot, bool):
+        return BoolCheckBox()
+    if isinstance(type_or_annot, type) and issubclass(type_or_annot, int):
+        return IntLineEdit()
+    if isinstance(type_or_annot, type) and issubclass(type_or_annot, float):
+        return FloatLineEdit()
+    if isinstance(type_or_annot, type) and issubclass(type_or_annot, str):
+        return StrLineEdit()
+    if getattr(type_or_annot, "__origin__", None) is tuple: # Tuple
+        args = getattr(type_or_annot, "__args__", None)
+        if args is None:
+            raise TypeError("%s does not have argument type" % type_or_annot)
+        if Ellipsis in args:
+            txt = "Number of arguments of %s not fixed" % type_or_annot
+            raise TypeError(txt)
+        widgets = [type2Widget(arg) for arg in args]
+        return MultiLineEdits.fromLineEdits(widgets)
+    raise TypeError("Unknown type or annotation : %s" % type_or_annot)
 
 
 class BoolCheckBox(QCheckBox):
