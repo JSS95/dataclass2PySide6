@@ -1,7 +1,11 @@
 """
-Widgets to represent data of dataclass. Every widget has ``dataValue()``
-method which returns the data in correct type, and ``dataValueChanged``
-signal which emits the changed value in correct type.
+Widgets to represent data of dataclass.
+
+Every widget has following methods and attributes:
+
+* ``dataValue()`` : Returns the data in correct type
+* ``dataValueChanged`` : Signal which emits the changed value
+* ``setDataValue()`` : Set the current state of the widget
 
 """
 from PySide6.QtCore import Signal
@@ -21,10 +25,12 @@ class BoolCheckBox(QCheckBox):
     """
     Checkbox for boolean value.
 
-    When the check state is changed, ``dataValueChanged`` signal is
+    :meth:`dataValue` returns the current boolean value.
+
+    When the check state is changed, :attr:`dataValueChanged` signal is
     emiited.
 
-    :meth:`dataValue` returns the current boolean value.
+    :meth:`setDataValue` checks and unchecks the checkbox.
 
     Examples
     ========
@@ -53,6 +59,9 @@ class BoolCheckBox(QCheckBox):
     def dataValue(self) -> bool:
         return self.isChecked()
 
+    def setDataValue(self, value: bool):
+        self.setChecked(value)
+
     def emitDataValueChanged(self, state: int):
         self.dataValueChanged.emit(bool(state))
 
@@ -61,12 +70,14 @@ class IntLineEdit(QLineEdit):
     """
     Line edit for integer value.
 
-    The validator is set as ``QIntValidator``. When text is changed or
-    edited, ``dataValueChanged`` or ``dataValueEdited`` signals are
-    emitted.
-
     :meth:`dataValue` returns the current integer value. The default
     value is zero.
+
+    The validator is set as ``QIntValidator``. When text is changed or
+    edited, :attr:`dataValueChanged` or :attr:`dataValueEdited`
+    signals are emitted.
+
+    :meth:`setDataValue` changes the text.
 
     Examples
     ========
@@ -99,6 +110,9 @@ class IntLineEdit(QLineEdit):
         val = int(text) if text else int(0)
         return val
 
+    def setDataValue(self, value: int):
+        self.setText(str(value))
+
     def emitDataValueChanged(self, text: str):
         val = int(text) if text else int(0)
         self.dataValueChanged.emit(val)
@@ -112,12 +126,14 @@ class FloatLineEdit(QLineEdit):
     """
     Line edit for float value.
 
-    The validator is set as ``QDoubleValidator``. When text is changed
-    or edited, ``dataValueChanged`` or ``dataValueEdited`` signals are
-    emitted.
-
     :meth:`dataValue` returns the current float value. The default
     value is zero.
+
+    The validator is set as ``QDoubleValidator``. When text is changed
+    or edited, :attr:`dataValueChanged` or :attr:`dataValueEdited`
+    signals are emitted.
+
+    :meth:`setDataValue` changes the text.
 
     Examples
     ========
@@ -150,6 +166,9 @@ class FloatLineEdit(QLineEdit):
         val = float(text) if text else float(0)
         return val
 
+    def setDataValue(self, value: float):
+        self.setText(str(value))
+
     def emitDataValueChanged(self, text: str):
         val = float(text) if text else float(0)
         self.dataValueChanged.emit(val)
@@ -164,10 +183,12 @@ class StrLineEdit(QLineEdit):
     """
     Line edit for str value.
 
-    When text is changed or edited, ``dataValueChanged`` or
-    ``dataValueEdited`` signals are emitted.
-
     :meth:`dataValue` returns the current str value.
+
+    When text is changed or edited, :attr:`dataValueChanged` or
+    :attr:`dataValueEdited` signals are emitted.
+
+    :meth:`setDataValue` changes the text.
 
     Examples
     ========
@@ -197,8 +218,11 @@ class StrLineEdit(QLineEdit):
     def dataValue(self) -> str:
         return self.text()
 
+    def setDataValue(self, value: str):
+        self.setText(str(value))
+
     def emitDataValueChanged(self, text: str):
-        self.dataValueChanged.emit(text)
+        self.dataValueChanged.emit(str(text))
 
     def emitDataValueEdited(self, text: str):
-        self.dataValueEdited.emit(text)
+        self.dataValueEdited.emit(str(text))
