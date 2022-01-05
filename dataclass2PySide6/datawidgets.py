@@ -102,23 +102,37 @@ class IntLineEdit(QLineEdit):
         super().__init__(parent)
 
         self.setValidator(QIntValidator())
+        self.setDefaultDataValue(0)
+
         self.textChanged.connect(self.emitDataValueChanged)
         self.textEdited.connect(self.emitDataValueEdited)
 
+    def defaultDataValue(self) -> int:
+        """
+        Default value for empty text.
+
+        This is different from the default value of dataclass field,
+        which is used to initialize the widget text.
+        """
+        return self._default_data_value
+
+    def setDefaultDataValue(self, val: int):
+        self._default_data_value = int(val)
+
     def dataValue(self) -> int:
         text = self.text()
-        val = int(text) if text else int(0)
+        val = int(text) if text else self.defaultDataValue()
         return val
 
     def setDataValue(self, value: int):
         self.setText(str(value))
 
     def emitDataValueChanged(self, text: str):
-        val = int(text) if text else int(0)
+        val = int(text) if text else self.defaultDataValue()
         self.dataValueChanged.emit(val)
 
     def emitDataValueEdited(self, text: str):
-        val = int(text) if text else int(0)
+        val = int(text) if text else self.defaultDataValue()
         self.dataValueEdited.emit(val)
 
 
@@ -158,25 +172,38 @@ class FloatLineEdit(QLineEdit):
         super().__init__(parent)
 
         self.setValidator(QDoubleValidator())
+        self.setDefaultDataValue(float(0))
+
         self.textChanged.connect(self.emitDataValueChanged)
         self.textEdited.connect(self.emitDataValueEdited)
 
+    def defaultDataValue(self) -> float:
+        """
+        Default value for empty text.
+
+        This is different from the default value of dataclass field,
+        which is used to initialize the widget text.
+        """
+        return self._default_data_value
+
+    def setDefaultDataValue(self, val: float):
+        self._default_data_value = float(val)
+
     def dataValue(self) -> float:
         text = self.text()
-        val = float(text) if text else float(0)
+        val = float(text) if text else self.defaultDataValue()
         return val
 
     def setDataValue(self, value: float):
         self.setText(str(value))
 
     def emitDataValueChanged(self, text: str):
-        val = float(text) if text else float(0)
+        val = float(text) if text else self.defaultDataValue()
         self.dataValueChanged.emit(val)
 
     def emitDataValueEdited(self, text: str):
-        val = float(text) if text else float(0)
+        val = float(text) if text else self.defaultDataValue()
         self.dataValueEdited.emit(val)
-
 
 
 class StrLineEdit(QLineEdit):
