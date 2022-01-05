@@ -99,11 +99,8 @@ def test_DataclassWidget_construction(qtbot, dclswidget):
 
 
 def test_nested_DataclassWidget_construction(qtbot, nested_dcw):
-    dcls3 = nested_dcw.dataclassType()
     widget_dcls2 = nested_dcw.widgets()["b"]
-    dcls2 = widget_dcls2.dataclassType()
     widget_dcls1 = widget_dcls2.widgets()["y"]
-    dcls1 = widget_dcls1.dataclassType()
 
     assert widget_dcls1.dataName() == "y"
     assert widget_dcls2.dataName() == "b"
