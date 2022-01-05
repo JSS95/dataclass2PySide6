@@ -1,6 +1,6 @@
 import dataclasses
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout
 from .datawidgets import type2Widget
 from typing import Dict
 
@@ -18,7 +18,7 @@ class _DefaultDataclass:
     pass
 
 
-class DataclassWidget(QWidget):
+class DataclassWidget(QGroupBox):
     """
     Widget which represents the fields of dataclass type.
 
@@ -100,6 +100,12 @@ class DataclassWidget(QWidget):
     def dataclassType(self) -> type:
         """Dataclass type which is used to construct *self*."""
         return self._dataclass_type
+
+    def dataName(self) -> str:
+        return self.title()
+
+    def setDataName(self, name: str):
+        self.setTitle(name)
 
     def widgets(self) -> Dict[str, QWidget]:
         """
