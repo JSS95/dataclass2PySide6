@@ -8,12 +8,13 @@ For example, here is a simple dataclass:
 
 ```python
 from dataclasses import dataclass
+from typing import Tuple
 
 @dataclass
-class Data:
+class DataClass:
     a: bool
     b: int
-    c: float = 4.2
+    c: Tuple[float, Tuple[bool, int]] = (4.2, (True, 99))
 ```
 
 Dataclass widget can be dynamically created as follows.

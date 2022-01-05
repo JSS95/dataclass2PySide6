@@ -39,14 +39,16 @@ class DataclassWidget(QWidget):
     Examples
     ========
 
-    >>> import dataclasses
+    >>> from dataclasses import dataclass
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
+    >>> from typing import Tuple
     >>> from dataclass2PySide6 import DataclassWidget
-    >>> @dataclasses.dataclass
+    >>> @dataclass
     ... class DataClass:
     ...     a: bool
     ...     b: int
+    ...     c: Tuple[int, Tuple[bool, int]]
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = DataclassWidget.fromDataclass(DataClass)
