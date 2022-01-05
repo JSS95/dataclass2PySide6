@@ -10,11 +10,11 @@ def test_BoolCheckBox(qtbot):
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
                           check_params_cb=lambda val: val):
-        widget.setChecked(True)
+        widget.setDataValue(True)
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
                           check_params_cb=lambda val: not val):
-        widget.setChecked(False)
+        widget.setDataValue(False)
 
 
 def test_IntLineEdit(qtbot):
@@ -24,7 +24,7 @@ def test_IntLineEdit(qtbot):
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
                           check_params_cb=lambda val: val == 1):
-        widget.setText("1")
+        widget.setDataValue("1")
     assert widget.dataValue() == 1
 
     # test dataValueEdited signal
@@ -55,7 +55,7 @@ def test_FloatLineEdit(qtbot):
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
                           check_params_cb=lambda val: val == 1.2):
-        widget.setText("1.2")
+        widget.setDataValue("1.2")
     assert widget.dataValue() == 1.2
 
     # test dataValueEdited signal
@@ -89,7 +89,7 @@ def test_StrLineEdit(qtbot):
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
                           check_params_cb=lambda val: val == "foo"):
-        widget.setText("foo")
+        widget.setDataValue("foo")
     assert widget.dataValue() == "foo"
 
     # test dataValueEdited signal
