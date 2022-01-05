@@ -102,8 +102,16 @@ class IntLineEdit(QLineEdit):
         super().__init__(parent)
 
         self.setValidator(QIntValidator())
+        self.setDefaultDataValue(0)
+
         self.textChanged.connect(self.emitDataValueChanged)
         self.textEdited.connect(self.emitDataValueEdited)
+
+    def defaultDataValue(self) -> int:
+        return self._default_data_value
+
+    def setDefaultDataValue(self, val: int):
+        self._default_data_value = int(val)
 
     def dataValue(self) -> int:
         text = self.text()
@@ -158,8 +166,16 @@ class FloatLineEdit(QLineEdit):
         super().__init__(parent)
 
         self.setValidator(QDoubleValidator())
+        self.setDefaultDataValue(float(0))
+
         self.textChanged.connect(self.emitDataValueChanged)
         self.textEdited.connect(self.emitDataValueEdited)
+
+    def defaultDataValue(self) -> float:
+        return self._default_data_value
+
+    def setDefaultDataValue(self, val: float):
+        self._default_data_value = float(val)
 
     def dataValue(self) -> float:
         text = self.text()
