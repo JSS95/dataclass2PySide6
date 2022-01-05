@@ -35,7 +35,7 @@ def get_extras_require():
 setup(
     name="dataclass2PySide6",
     version=get_version(),
-    python_requires='>=3.8',
+    python_requires='>=3.9',
     description="Package to construct PySide6 widgets from dataclass",
     long_description=read_readme(),
     long_description_content_type='text/markdown',
@@ -48,7 +48,6 @@ setup(
         "Operating System :: Unix",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
