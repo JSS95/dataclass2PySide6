@@ -114,3 +114,10 @@ class DataclassWidget(QWidget):
 
     def emitDataChanged(self):
         self.dataChanged.emit()
+
+    def currentData(self) -> object:
+        """
+        Return the current state of widgets as dataclass instance.
+        """
+        args = {name: w.dataValue() for (name, w) in self.widgets().items()}
+        return self.dataclassType()(**args)

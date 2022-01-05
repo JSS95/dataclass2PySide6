@@ -74,3 +74,12 @@ def test_DataclassWidget_dataChanged(qtbot, dclswidget):
 
     with qtbot.waitSignal(dclswidget.dataChanged, raising=True):
         dclswidget.widgets()["d"].setText("foo")
+
+
+def test_DataclassWidget_currentData(qtbot, dclswidget):
+    dcls = dclswidget.dataclassType()
+
+    assert dclswidget.currentData() == dcls(a=False,
+                                            b=int(0),
+                                            c=float(0),
+                                            d="")
