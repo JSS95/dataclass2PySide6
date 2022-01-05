@@ -350,7 +350,7 @@ class TupleGroupBox(QGroupBox):
 
     def setDataValue(self, value: tuple):
         for w, v in zip(self.widgets(), value):
-            w.setDataValue(value)
+            w.setDataValue(v)
         self.emitDataValueChanged()
 
     def emitDataValueChanged(self):
