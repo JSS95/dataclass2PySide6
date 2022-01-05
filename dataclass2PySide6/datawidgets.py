@@ -1,3 +1,7 @@
+"""
+Widgets to represent data of dataclass. Every widget has ``dataValue()``
+method which returns the data in correct type.
+"""
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import QLineEdit
@@ -15,10 +19,11 @@ class IntLineEdit(QLineEdit):
     Line edit for integer value.
 
     The validator is set as ``QIntValidator``. When text is changed or
-    edited, ``valueChanged`` and ``valueEdited`` signals are emitted.
+    edited, ``dataValueChanged`` and ``dataValueEdited`` signals are
+    emitted.
 
-    :meth:`value()` returns the current integer value, or ``None`` if
-    the text is empty.
+    :meth:`dataValue()` returns the current integer value, or ``None``
+    if the text is empty.
 
     Examples
     ========
@@ -36,28 +41,28 @@ class IntLineEdit(QLineEdit):
     ...     app.quit()
     >>> runGUI() # doctest: +SKIP
     """
-    valueChanged = Signal(int)
-    valueEdited = Signal(int)
+    dataValueChanged = Signal(int)
+    dataValueEdited = Signal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
         self.setValidator(QIntValidator())
-        self.textChanged.connect(self.emitValueChanged)
-        self.textEdited.connect(self.emitValueEdited)
+        self.textChanged.connect(self.emitDataValueChanged)
+        self.textEdited.connect(self.emitDataValueEdited)
 
-    def value(self) -> Union[int, None]:
+    def dataValue(self) -> Union[int, None]:
         text = self.text()
         if text:
             return int(text)
 
-    def emitValueChanged(self, text: str):
+    def emitDataValueChanged(self, text: str):
         if text:
-            self.valueChanged.emit(int(text))
+            self.dataValueChanged.emit(int(text))
 
-    def emitValueEdited(self, text: str):
+    def emitDataValueEdited(self, text: str):
         if text:
-            self.valueEdited.emit(int(text))
+            self.dataValueEdited.emit(int(text))
 
 
 class FloatLineEdit(QLineEdit):
@@ -65,10 +70,11 @@ class FloatLineEdit(QLineEdit):
     Line edit for float value.
 
     The validator is set as ``QDoubleValidator``. When text is changed
-    or edited, ``valueChanged`` and ``valueEdited`` signals are emitted.
+    or edited, ``dataValueChanged`` and ``dataValueEdited`` signals are
+    emitted.
 
-    :meth:`value()` returns the current float value, or ``None`` if the
-    text is empty.
+    :meth:`dataValue()` returns the current float value, or ``None`` if 
+    the text is empty.
 
     Examples
     ========
@@ -86,8 +92,8 @@ class FloatLineEdit(QLineEdit):
     ...     app.quit()
     >>> runGUI() # doctest: +SKIP
     """
-    valueChanged = Signal(float)
-    valueEdited = Signal(float)
+    dataValueChanged = Signal(float)
+    dataValueEdited = Signal(float)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -96,15 +102,15 @@ class FloatLineEdit(QLineEdit):
         self.textChanged.connect(self.emitValueChanged)
         self.textEdited.connect(self.emitValueEdited)
 
-    def value(self) -> Union[float, None]:
+    def dataValue(self) -> Union[float, None]:
         text = self.text()
         if text:
             return float(text)
 
     def emitValueChanged(self, text: str):
         if text:
-            self.valueChanged.emit(float(text))
+            self.dataValueChanged.emit(float(text))
 
     def emitValueEdited(self, text: str):
         if text:
-            self.valueEdited.emit(float(text))
+            self.dataValueEdited.emit(float(text))
