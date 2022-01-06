@@ -181,7 +181,6 @@ class StackedDataclassWidget(QStackedWidget):
     >>> from dataclasses import dataclass
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
-    >>> from typing import Tuple
     >>> from dataclass2PySide6 import StackedDataclassWidget
     >>> @dataclass
     ... class DataClass1:
