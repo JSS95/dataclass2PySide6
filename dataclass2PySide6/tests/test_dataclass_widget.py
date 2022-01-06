@@ -223,3 +223,14 @@ def test_StackedDataclassWidget(qtbot, stackedwidget):
     assert stackedwidget.indexOf(Dataclass2) == 1
     assert stackedwidget.indexOf(Dataclass3) == 2
     assert stackedwidget.indexOf(OtherDataclass) == -1
+
+def test_StackedDataclassWidget_dataValueChanged(qtbot, stackedwidget):
+
+    with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
+        stackedwidget.widget(0).widgets()["a"].setText("10")
+
+    with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
+        stackedwidget.widget(1).widgets()["b"].setText("10")
+
+    with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
+        stackedwidget.widget(2).widgets()["c"].setText("10")

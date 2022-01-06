@@ -175,6 +175,9 @@ class StackedDataclassWidget(QStackedWidget):
     dataclass. Use :meth:`indexOf` to get the index of the widget for
     giten dataclass.
 
+    If data value of any dataclass widget is changed,
+    :attr:`dataValueChanged` signal is emitted.
+
     Examples
     ========
 
@@ -197,6 +200,9 @@ class StackedDataclassWidget(QStackedWidget):
     >>> runGUI() # doctest: +SKIP
 
     """
+
+    dataValueChanged = Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -210,6 +216,7 @@ class StackedDataclassWidget(QStackedWidget):
         widget.setDataName(name)
         self.addWidget(widget)
         self._dataclasses[dcls] = self.indexOf(widget)
+        widget.dataValueChanged.connect(self.emitDataValueChanged)
 
     def indexOf(self, arg__1: Union[type, QWidget]) -> int:
         """
@@ -223,3 +230,6 @@ class StackedDataclassWidget(QStackedWidget):
                 dcls = arg__1
             return self._dataclasses.get(dcls, -1)
         return super().indexOf(arg__1)
+
+    def emitDataValueChanged(self):
+        self.dataValueChanged.emit()
