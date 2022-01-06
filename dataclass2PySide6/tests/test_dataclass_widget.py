@@ -1,6 +1,7 @@
 import dataclasses
 import pytest
-from dataclass2PySide6 import DataclassWidget, StackedDataclassWidget
+from dataclass2PySide6 import (DataclassWidget, StackedDataclassWidget,
+    TabDataclassWidget)
 from typing import Tuple
 
 
@@ -224,6 +225,7 @@ def test_StackedDataclassWidget(qtbot, stackedwidget):
     assert stackedwidget.indexOf(Dataclass3) == 2
     assert stackedwidget.indexOf(OtherDataclass) == -1
 
+
 def test_StackedDataclassWidget_dataValueChanged(qtbot, stackedwidget):
 
     with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
@@ -234,3 +236,57 @@ def test_StackedDataclassWidget_dataValueChanged(qtbot, stackedwidget):
 
     with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
         stackedwidget.widget(2).widgets()["c"].setText("10")
+
+
+@pytest.fixture
+def tabwidget(qtbot):
+    @dataclasses.dataclass
+    class Dataclass1:
+        a : int
+    @dataclasses.dataclass
+    class Dataclass2:
+        b : int
+    @dataclasses.dataclass
+    class Dataclass3:
+        c : int
+    widget = TabDataclassWidget()
+    widget.addDataclass(Dataclass1, "foo")
+    widget.addDataclass(Dataclass2, "bar")
+    widget.addDataclass(Dataclass3, "baz")
+    return widget
+
+
+def test_TabdataclassWidget(qtbot, tabwidget):
+    assert tabwidget.count() == 3
+
+    assert tabwidget.widget(0).dataName() == ""
+    assert tabwidget.widget(1).dataName() == ""
+    assert tabwidget.widget(2).dataName() == ""
+
+
+    assert tabwidget.tabText(0) == "foo"
+    assert tabwidget.tabText(1) == "bar"
+    assert tabwidget.tabText(2) == "baz"
+
+    Dataclass1 = tabwidget.widget(0).dataclassType()
+    Dataclass2 = tabwidget.widget(1).dataclassType()
+    Dataclass3 = tabwidget.widget(2).dataclassType()
+    @dataclasses.dataclass
+    class OtherDataclass:
+        pass
+    assert tabwidget.indexOf(Dataclass1) == 0
+    assert tabwidget.indexOf(Dataclass2) == 1
+    assert tabwidget.indexOf(Dataclass3) == 2
+    assert tabwidget.indexOf(OtherDataclass) == -1
+
+
+def test_TabdataclassWidget_dataValueChanged(qtbot, tabwidget):
+
+    with qtbot.waitSignal(tabwidget.dataValueChanged, raising=True):
+        tabwidget.widget(0).widgets()["a"].setText("10")
+
+    with qtbot.waitSignal(tabwidget.dataValueChanged, raising=True):
+        tabwidget.widget(1).widgets()["b"].setText("10")
+
+    with qtbot.waitSignal(tabwidget.dataValueChanged, raising=True):
+        tabwidget.widget(2).widgets()["c"].setText("10")
