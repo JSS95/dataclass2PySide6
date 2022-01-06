@@ -1,6 +1,6 @@
 import dataclasses
 import pytest
-from dataclass2PySide6 import DataclassWidget
+from dataclass2PySide6 import DataclassWidget, StackedDataclassWidget
 from typing import Tuple
 
 
@@ -186,3 +186,51 @@ def test_nested_DataclassWidget_setDataValue(qtbot, nested_dcw):
     dc = dcls3(a=True, b=dcls2(x=-1, y=dcls1(z=100)))
     nested_dcw.setDataValue(dc)
     assert nested_dcw.dataValue() == dc
+
+
+@pytest.fixture
+def stackedwidget(qtbot):
+    @dataclasses.dataclass
+    class Dataclass1:
+        a : int
+    @dataclasses.dataclass
+    class Dataclass2:
+        b : int
+    @dataclasses.dataclass
+    class Dataclass3:
+        c : int
+    widget = StackedDataclassWidget()
+    widget.addDataclass(Dataclass1)
+    widget.addDataclass(Dataclass2, "")
+    widget.addDataclass(Dataclass3, "foo")
+    return widget
+
+
+def test_StackedDataclassWidget(qtbot, stackedwidget):
+    assert stackedwidget.count() == 3
+
+    assert stackedwidget.widget(0).dataName() == "Dataclass1"
+    assert stackedwidget.widget(1).dataName() == ""
+    assert stackedwidget.widget(2).dataName() == "foo"
+
+    Dataclass1 = stackedwidget.widget(0).dataclassType()
+    Dataclass2 = stackedwidget.widget(1).dataclassType()
+    Dataclass3 = stackedwidget.widget(2).dataclassType()
+    @dataclasses.dataclass
+    class OtherDataclass:
+        pass
+    assert stackedwidget.indexOf(Dataclass1) == 0
+    assert stackedwidget.indexOf(Dataclass2) == 1
+    assert stackedwidget.indexOf(Dataclass3) == 2
+    assert stackedwidget.indexOf(OtherDataclass) == -1
+
+def test_StackedDataclassWidget_dataValueChanged(qtbot, stackedwidget):
+
+    with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
+        stackedwidget.widget(0).widgets()["a"].setText("10")
+
+    with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
+        stackedwidget.widget(1).widgets()["b"].setText("10")
+
+    with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
+        stackedwidget.widget(2).widgets()["c"].setText("10")

@@ -1,12 +1,13 @@
 import dataclasses
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QGroupBox, QVBoxLayout, QStackedWidget
 from .datawidgets import type2Widget
-from typing import Dict
+from typing import Dict, Union, Optional
 
 
 __all__ = [
-    "DataclassWidget"
+    "DataclassWidget",
+    "StackedDataclassWidget",
 ]
 
 
@@ -164,3 +165,71 @@ class DataclassWidget(QGroupBox):
         """
         for name, w in self.widgets().items():
             w.setDataValue(getattr(data, name))
+
+
+class StackedDataclassWidget(QStackedWidget):
+    """
+    Widget to manage multiple dataclasses.
+
+    Use :meth:`addDataclass` to construct and add the widget for the
+    dataclass. Use :meth:`indexOf` to get the index of the widget for
+    giten dataclass.
+
+    If data value of any dataclass widget is changed,
+    :attr:`dataValueChanged` signal is emitted.
+
+    Examples
+    ========
+
+    >>> from dataclasses import dataclass
+    >>> from PySide6.QtWidgets import QApplication
+    >>> import sys
+    >>> from dataclass2PySide6 import StackedDataclassWidget
+    >>> @dataclass
+    ... class DataClass1:
+    ...     a: int
+    >>> def runGUI():
+    ...     app = QApplication(sys.argv)
+    ...     widget = StackedDataclassWidget()
+    ...     widget.addDataclass(DataClass1)
+    ...     geometry = widget.screen().availableGeometry()
+    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
+    ...     widget.show()
+    ...     app.exec()
+    ...     app.quit()
+    >>> runGUI() # doctest: +SKIP
+
+    """
+
+    dataValueChanged = Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self._dataclasses: Dict[type, int] = {}
+
+    def addDataclass(self, dcls: type, name: Optional[str] = None):
+        """Construct and add the :class:`DataclassWidget`"""
+        if name is None:
+            name = dcls.__name__
+        widget = DataclassWidget.fromDataclass(dcls)
+        widget.setDataName(name)
+        self.addWidget(widget)
+        self._dataclasses[dcls] = self.indexOf(widget)
+        widget.dataValueChanged.connect(self.emitDataValueChanged)
+
+    def indexOf(self, arg__1: Union[type, QWidget]) -> int:
+        """
+        Returns the index of the given dataclass or ``widget``. Return
+        -1 if it not exists in ``StackedDataclassWidget``.
+        """
+        if dataclasses.is_dataclass(arg__1):
+            if not isinstance(arg__1, type):
+                dcls = type(arg__1)
+            else:
+                dcls = arg__1
+            return self._dataclasses.get(dcls, -1)
+        return super().indexOf(arg__1)
+
+    def emitDataValueChanged(self):
+        self.dataValueChanged.emit()
