@@ -3,7 +3,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (QWidget, QGroupBox, QVBoxLayout, QStackedWidget,
     QTabWidget)
 from .datawidgets import type2Widget
-from typing import Dict, Union, Optional
+from typing import Dict, Union, Optional, get_type_hints
 
 
 __all__ = [
@@ -84,6 +84,9 @@ class DataclassWidget(QGroupBox):
         obj = cls()
         obj._dataclass_type = datacls
         fields = dataclasses.fields(datacls)
+        annots = get_type_hints(datacls.__init__)
+        for f in fields:
+            f.type = annots[f.name]
         obj._widgets = {f.name: obj.field2Widget(f) for f in fields}
         obj.initWidgets()
         obj.initUI()

@@ -1,7 +1,7 @@
 import dataclasses
 import pytest
 from dataclass2PySide6 import (DataclassWidget, StackedDataclassWidget,
-    TabDataclassWidget)
+    TabDataclassWidget, BoolCheckBox, IntLineEdit, FloatLineEdit)
 from typing import Tuple
 
 
@@ -290,3 +290,24 @@ def test_TabdataclassWidget_dataValueChanged(qtbot, tabwidget):
 
     with qtbot.waitSignal(tabwidget.dataValueChanged, raising=True):
         tabwidget.widget(2).widgets()["c"].setText("10")
+
+
+def test_DataclassWidget_str_annotation(qtbot):
+
+    @dataclasses.dataclass
+    class A:
+        x: "int"
+    @dataclasses.dataclass
+    class B(A):
+        y: "float"
+    @dataclasses.dataclass
+    class C(B):
+        z: "bool"
+
+    widgetA = DataclassWidget.fromDataclass(A)
+    widgetB = DataclassWidget.fromDataclass(B)
+    widgetC = DataclassWidget.fromDataclass(C)
+
+    assert isinstance(widgetA.widgets()["x"], IntLineEdit)
+    assert isinstance(widgetB.widgets()["y"], FloatLineEdit)
+    assert isinstance(widgetC.widgets()["z"], BoolCheckBox)
