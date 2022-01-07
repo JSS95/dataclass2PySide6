@@ -1,7 +1,8 @@
+from enum import Enum
 from PySide6.QtCore import Qt
 import pytest
 from dataclass2PySide6 import (type2Widget, BoolCheckBox, IntLineEdit,
-    FloatLineEdit, StrLineEdit, TupleGroupBox)
+    FloatLineEdit, StrLineEdit, TupleGroupBox, EnumComboBox)
 from typing import Tuple
 
 
@@ -159,3 +160,28 @@ def test_TupleGroupBox(qtbot):
                           check_params_cb=lambda val: val == (42, 0.0)):
         widget.widgets()[0].setDataValue(42)
     assert widget.dataValue() == (42, 0.0)
+
+
+def test_EnumComboBox(qtbot):
+    class MyEnum(Enum):
+        x = 1
+        y = 2
+        z = 3
+
+    widget = EnumComboBox.fromEnum(MyEnum)
+    assert widget.count() == 3
+    assert widget.currentIndex() == -1
+    assert widget.dataValue() == MyEnum.x
+
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val == MyEnum.y):
+        widget.setDataValue(MyEnum.y)
+
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val == MyEnum.z):
+        widget.setCurrentIndex(2)
+
+    with qtbot.assertNotEmitted(widget.dataValueChanged):
+        widget.setCurrentIndex(-1)
