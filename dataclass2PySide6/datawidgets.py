@@ -96,6 +96,7 @@ class BoolCheckBox(QCheckBox):
 
     def setDataName(self, name: str):
         self.setText(name)
+        self.setToolTip(name)
 
     def dataValue(self) -> bool:
         return self.isChecked()
@@ -153,6 +154,7 @@ class IntLineEdit(QLineEdit):
 
     def setDataName(self, name: str):
         self.setPlaceholderText(name)
+        self.setToolTip(name)
 
     def defaultDataValue(self) -> int:
         """
@@ -229,6 +231,7 @@ class FloatLineEdit(QLineEdit):
 
     def setDataName(self, name: str):
         self.setPlaceholderText(name)
+        self.setToolTip(name)
 
     def defaultDataValue(self) -> float:
         """
@@ -300,6 +303,7 @@ class StrLineEdit(QLineEdit):
 
     def setDataName(self, name: str):
         self.setPlaceholderText(name)
+        self.setToolTip(name)
 
     def dataValue(self) -> str:
         return self.text()
@@ -367,6 +371,7 @@ class TupleGroupBox(QGroupBox):
 
     def setDataName(self, name: str):
         self.setTitle(name)
+        self.setToolTip(name)
 
     def widgets(self) -> List[QWidget]:
         return self._widgets
@@ -453,6 +458,7 @@ class EnumComboBox(QComboBox):
 
     def setDataName(self, name: str):
         self.setPlaceholderText(name)
+        self.setToolTip(name)
 
     def dataValue(self) -> Enum:
         index = self.currentIndex()
