@@ -1,9 +1,9 @@
 from .version import __version__ # noqa
 
 from .datawidgets import (type2Widget, BoolCheckBox, IntLineEdit,
-    FloatLineEdit, StrLineEdit, TupleGroupBox)
+    FloatLineEdit, StrLineEdit, TupleGroupBox, EnumComboBox)
 from .dataclass_widget import (DataclassWidget, StackedDataclassWidget,
-    TabDataclassWidget)
+    TabDataclassWidget,)
 
 
 __all__ = [
@@ -13,6 +13,7 @@ __all__ = [
     "FloatLineEdit",
     "StrLineEdit",
     "TupleGroupBox",
+    "EnumComboBox",
 
     "DataclassWidget",
     "StackedDataclassWidget",

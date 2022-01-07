@@ -12,8 +12,8 @@ Every widget has following methods and attributes:
 """
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
-from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QGroupBox,
-    QHBoxLayout)
+from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QComboBox,
+    QGroupBox, QHBoxLayout)
 from typing import List
 
 
@@ -24,6 +24,7 @@ __all__ = [
     "FloatLineEdit",
     "StrLineEdit",
     "TupleGroupBox",
+    "EnumComboBox",
 ]
 
 
@@ -388,3 +389,7 @@ class TupleGroupBox(QGroupBox):
     def emitDataValueChanged(self):
         value = self.dataValue()
         self.dataValueChanged.emit(value)
+
+
+class EnumComboBox(QComboBox):
+    pass
