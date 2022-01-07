@@ -10,10 +10,11 @@ Every widget has following methods and attributes:
 * ``setDataValue()`` : Set the current state of the widget
 
 """
+from enum import Enum
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIntValidator, QDoubleValidator
-from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QGroupBox,
-    QHBoxLayout)
+from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QComboBox,
+    QGroupBox, QHBoxLayout)
 from typing import List
 
 
@@ -24,6 +25,7 @@ __all__ = [
     "FloatLineEdit",
     "StrLineEdit",
     "TupleGroupBox",
+    "EnumComboBox",
 ]
 
 
@@ -40,6 +42,8 @@ def type2Widget(type_or_annot) -> QWidget:
         return FloatLineEdit()
     if isinstance(type_or_annot, type) and issubclass(type_or_annot, str):
         return StrLineEdit()
+    if isinstance(type_or_annot, type) and issubclass(type_or_annot, Enum):
+        return EnumComboBox.fromEnum(type_or_annot)
     if getattr(type_or_annot, "__origin__", None) is tuple: # Tuple
         args = getattr(type_or_annot, "__args__", None)
         if args is None:
@@ -388,3 +392,78 @@ class TupleGroupBox(QGroupBox):
     def emitDataValueChanged(self):
         value = self.dataValue()
         self.dataValueChanged.emit(value)
+
+
+class EnumComboBox(QComboBox):
+    """
+    Combo box for enum type.
+
+    Standard way to construct this widget is by :meth:`fromEnum` class
+    method.
+
+    :meth:`fromEnum` instances are stored in the data of each item as
+    ``Qt.UserRole``.
+
+    :meth:`dataValue` returns the enum instance in current item.
+
+    When current item is changed, :attr:`dataValueChanged` signal is
+    emiited.
+
+    :meth:`setDataValue` sets the current item to the one which has
+    the enum instance as item.
+
+    Examples
+    ========
+
+    >>> from enum import Enum
+    >>> from PySide6.QtWidgets import QApplication
+    >>> import sys
+    >>> from dataclass2PySide6 import EnumComboBox
+    >>> class MyEnum(Enum):
+    ...     x = 1
+    ...     y = 2
+    >>> def runGUI():
+    ...     app = QApplication(sys.argv)
+    ...     widget = EnumComboBox.fromEnum(MyEnum)
+    ...     geometry = widget.screen().availableGeometry()
+    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
+    ...     widget.show()
+    ...     app.exec()
+    ...     app.quit()
+    >>> runGUI() # doctest: +SKIP
+
+    """
+    dataValueChanged = Signal(Enum)
+
+    @classmethod
+    def fromEnum(cls, enum: type) -> "EnumComboBox":
+        obj = cls()
+        for e in enum:
+            obj.addItem(e.name, userData=e)
+        obj.setCurrentIndex(-1)
+        return obj
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.currentIndexChanged.connect(self.emitDataValueChanged)
+
+    def dataName(self) -> str:
+        return self.placeholderText()
+
+    def setDataName(self, name: str):
+        self.setPlaceholderText(name)
+
+    def dataValue(self) -> Enum:
+        index = self.currentIndex()
+        if index == -1:
+            index = 0
+        return self.itemData(index)
+
+    def setDataValue(self, value: Enum):
+        index = self.findData(value)
+        self.setCurrentIndex(index)
+
+    def emitDataValueChanged(self, index: int):
+        if index != -1:
+            self.dataValueChanged.emit(self.itemData(index))

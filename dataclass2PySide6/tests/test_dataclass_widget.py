@@ -1,9 +1,14 @@
 import dataclasses
+from enum import Enum
 import pytest
 from dataclass2PySide6 import (DataclassWidget, StackedDataclassWidget,
     TabDataclassWidget, BoolCheckBox, IntLineEdit, FloatLineEdit)
 from typing import Tuple
 
+
+class MyEnum(Enum):
+    x = 1
+    y = 2
 
 @pytest.fixture
 def dclswidget(qtbot):
@@ -16,6 +21,7 @@ def dclswidget(qtbot):
         str1: str
         Tuple1: Tuple[bool, int]
         Tuple2: Tuple[bool, Tuple[int]]
+        my_enum1: MyEnum
         bool2: bool = True
         bool3: bool = False
         int2: int = 42
@@ -23,6 +29,7 @@ def dclswidget(qtbot):
         str2: str = "foo"
         Tuple3: Tuple[bool, int] = (True, 1)
         Tuple4: Tuple[bool, Tuple[int]] = (False, (2,))
+        my_enum2: MyEnum = MyEnum.y
 
     widget = DataclassWidget.fromDataclass(DataClass)
     return widget
@@ -75,6 +82,11 @@ def test_DataclassWidget_construction(qtbot, dclswidget):
     assert not widget_Tuple2.widgets()[0].isChecked()
     assert widget_Tuple2.widgets()[1].widgets()[0].text() == ""
 
+    widget_str1 = dclswidget.widgets()["my_enum1"]
+    assert widget_str1.placeholderText() == "my_enum1"
+    assert widget_str1.currentIndex() == -1
+    assert widget_str1.dataValue() == MyEnum.x
+
     widget_bool2 = dclswidget.widgets()["bool2"]
     assert widget_bool2.isChecked()
 
@@ -97,6 +109,11 @@ def test_DataclassWidget_construction(qtbot, dclswidget):
     widget_Tuple4 = dclswidget.widgets()["Tuple4"]
     assert not widget_Tuple4.widgets()[0].isChecked()
     assert widget_Tuple4.widgets()[1].widgets()[0].text() == "2"
+
+    widget_str1 = dclswidget.widgets()["my_enum2"]
+    assert widget_str1.placeholderText() == "my_enum2"
+    assert widget_str1.currentIndex() == 1
+    assert widget_str1.dataValue() == MyEnum.y
 
 
 def test_nested_DataclassWidget_construction(qtbot, nested_dcw):
@@ -152,7 +169,8 @@ def test_DataclassWidget_dataValue(qtbot, dclswidget):
                                               float1=float(0),
                                               str1="",
                                               Tuple1=(False, 0),
-                                              Tuple2=(False, (0,)))
+                                              Tuple2=(False, (0,)),
+                                              my_enum1=MyEnum.x)
 
 
 def test_nested_DataclassWidget_dataValue(qtbot, nested_dcw):
@@ -171,7 +189,8 @@ def test_DataclassWidget_setDataValue(qtbot, dclswidget):
                                     float1=4.2,
                                     str1="foo",
                                     Tuple1=(False, 0),
-                                    Tuple2=(False, (0,)))
+                                    Tuple2=(False, (0,)),
+                                    my_enum1=MyEnum.y)
 
     dclswidget.setDataValue(dc)
     assert dclswidget.dataValue() == dc
