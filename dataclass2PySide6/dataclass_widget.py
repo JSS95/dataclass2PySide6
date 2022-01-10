@@ -165,11 +165,17 @@ class DataclassWidget(QGroupBox):
         ==========
 
         data
-            Dataclass instance
+            Dataclass instance or dict
 
         """
         for name, w in self.widgets().items():
-            w.setDataValue(getattr(data, name))
+            if isinstance(data, dict):
+                if not name in data.keys():
+                    continue
+                val = data[name]
+            else:
+                val = getattr(data, name)
+            w.setDataValue(val)
 
 
 class StackedDataclassWidget(QStackedWidget):
