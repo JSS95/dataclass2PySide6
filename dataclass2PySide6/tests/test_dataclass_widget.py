@@ -196,6 +196,19 @@ def test_DataclassWidget_setDataValue(qtbot, dclswidget):
     assert dclswidget.dataValue() == dc
 
 
+def test_DataclassWidget_setDataValue_dict(qtbot, dclswidget):
+    dc = dclswidget.dataclassType()(bool1=True,
+                                    int1=42,
+                                    float1=4.2,
+                                    str1="foo",
+                                    Tuple1=(False, 0),
+                                    Tuple2=(False, (0,)),
+                                    my_enum1=MyEnum.y)
+
+    dclswidget.setDataValue(dataclasses.asdict(dc))
+    assert dclswidget.dataValue() == dc
+
+
 def test_nested_DataclassWidget_setDataValue(qtbot, nested_dcw):
     dcls3 = nested_dcw.dataclassType()
     widget_dcls2 = nested_dcw.widgets()["b"]
@@ -205,6 +218,18 @@ def test_nested_DataclassWidget_setDataValue(qtbot, nested_dcw):
 
     dc = dcls3(a=True, b=dcls2(x=-1, y=dcls1(z=100)))
     nested_dcw.setDataValue(dc)
+    assert nested_dcw.dataValue() == dc
+
+
+def test_nested_DataclassWidget_setDataValue_dict(qtbot, nested_dcw):
+    dcls3 = nested_dcw.dataclassType()
+    widget_dcls2 = nested_dcw.widgets()["b"]
+    dcls2 = widget_dcls2.dataclassType()
+    widget_dcls1 = widget_dcls2.widgets()["y"]
+    dcls1 = widget_dcls1.dataclassType()
+
+    dc = dcls3(a=True, b=dcls2(x=-1, y=dcls1(z=100)))
+    nested_dcw.setDataValue(dataclasses.asdict(dc))
     assert nested_dcw.dataValue() == dc
 
 
