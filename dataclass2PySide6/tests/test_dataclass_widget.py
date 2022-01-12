@@ -1,5 +1,6 @@
 import dataclasses
 from enum import Enum
+from PySide6.QtWidgets import QSizePolicy
 import pytest
 from dataclass2PySide6 import (DataclassWidget, StackedDataclassWidget,
     TabDataclassWidget, BoolCheckBox, IntLineEdit, FloatLineEdit)
@@ -280,6 +281,77 @@ def test_StackedDataclassWidget_dataValueChanged(qtbot, stackedwidget):
 
     with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
         stackedwidget.widget(2).widgets()["c"].setText("10")
+
+
+def test_StackedDataclassWidget_widgets_sizePolicy(qtbot, stackedwidget):
+    widget0 = stackedwidget.widget(0)
+    widget1 = stackedwidget.widget(1)
+    widget2 = stackedwidget.widget(2)
+
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+
+    stackedwidget.setCurrentIndex(0)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    stackedwidget.setCurrentIndex(1)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    stackedwidget.setCurrentIndex(2)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    stackedwidget.setCurrentIndex(-1)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+
+    stackedwidget.setCurrentWidget(widget0)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    stackedwidget.setCurrentWidget(widget1)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    stackedwidget.setCurrentWidget(widget2)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    stackedwidget.setCurrentWidget(None)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
 
 @pytest.fixture
