@@ -1,7 +1,7 @@
 import dataclasses
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (QWidget, QGroupBox, QVBoxLayout, QStackedWidget,
-    QTabWidget)
+    QTabWidget, QSizePolicy)
 from .datawidgets import type2Widget
 from typing import Dict, Union, Optional, get_type_hints
 
@@ -219,6 +219,47 @@ class StackedDataclassWidget(QStackedWidget):
 
         self._dataclasses: Dict[type, int] = {}
 
+    def addWidget(self, w: QWidget):
+        # force size policy to make ignore the size of hidden widget
+        w.setSizePolicy(
+            QSizePolicy.Ignored,
+            QSizePolicy.Ignored
+        )
+        super().addWidget(w)
+
+    def setCurrentIndex(self, index: int):
+        old_widget = self.currentWidget()
+        if old_widget is not None:
+            old_widget.setSizePolicy(
+                QSizePolicy.Ignored,
+                QSizePolicy.Ignored
+            )
+        new_widget = self.widget(index)
+        if new_widget is not None:
+            new_widget.setSizePolicy(
+                QSizePolicy.Preferred,
+                QSizePolicy.Preferred
+            )
+            new_widget.adjustSize()
+        super().setCurrentIndex(index)
+        self.adjustSize()
+
+    def setCurrentWidget(self, w: QStackedWidget):
+        old_widget = self.currentWidget()
+        if old_widget is not None:
+            old_widget.setSizePolicy(
+                QSizePolicy.Ignored,
+                QSizePolicy.Ignored
+            )
+        if w is not None:
+            w.setSizePolicy(
+                QSizePolicy.Preferred,
+                QSizePolicy.Preferred
+            )
+            w.adjustSize()
+        super().setCurrentWidget(w)
+        self.adjustSize()
+
     def addDataclass(self, dcls: type, name: Optional[str] = None):
         """Construct and add the :class:`DataclassWidget`"""
         if name is None:
@@ -289,6 +330,47 @@ class TabDataclassWidget(QTabWidget):
         super().__init__(parent)
 
         self._dataclasses: Dict[type, int] = {}
+
+    def addTab(self, widget: QWidget, *args):
+        # force size policy to make ignore the size of hidden widget
+        widget.setSizePolicy(
+            QSizePolicy.Ignored,
+            QSizePolicy.Ignored
+        )
+        super().addTab(widget, *args)
+
+    def setCurrentIndex(self, index: int):
+        old_widget = self.currentWidget()
+        if old_widget is not None:
+            old_widget.setSizePolicy(
+                QSizePolicy.Ignored,
+                QSizePolicy.Ignored
+            )
+        new_widget = self.widget(index)
+        if new_widget is not None:
+            new_widget.setSizePolicy(
+                QSizePolicy.Preferred,
+                QSizePolicy.Preferred
+            )
+            new_widget.adjustSize()
+        super().setCurrentIndex(index)
+        self.adjustSize()
+
+    def setCurrentWidget(self, w: QStackedWidget):
+        old_widget = self.currentWidget()
+        if old_widget is not None:
+            old_widget.setSizePolicy(
+                QSizePolicy.Ignored,
+                QSizePolicy.Ignored
+            )
+        if w is not None:
+            w.setSizePolicy(
+                QSizePolicy.Preferred,
+                QSizePolicy.Preferred
+            )
+            w.adjustSize()
+        super().setCurrentWidget(w)
+        self.adjustSize()
 
     def addDataclass(self, dcls: type, label: str):
         """Construct and add the :class:`DataclassWidget`"""
