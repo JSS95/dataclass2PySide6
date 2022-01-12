@@ -140,7 +140,11 @@ class DataclassWidget(QGroupBox):
         self.setLayout(layout)
 
     def emitDataValueChanged(self):
-        self.dataValueChanged.emit()
+        try:
+            self.dataValue()
+            self.dataValueChanged.emit()
+        except (TypeError, ValueError):
+            pass
 
     def dataValue(self) -> object:
         """
@@ -284,7 +288,11 @@ class StackedDataclassWidget(QStackedWidget):
         return super().indexOf(arg__1)
 
     def emitDataValueChanged(self):
-        self.dataValueChanged.emit()
+        try:
+            self.currentWidget().dataValue()
+            self.dataValueChanged.emit()
+        except (TypeError, ValueError):
+            pass
 
 
 class TabDataclassWidget(QTabWidget):
@@ -393,4 +401,8 @@ class TabDataclassWidget(QTabWidget):
         return super().indexOf(arg__1)
 
     def emitDataValueChanged(self):
-        self.dataValueChanged.emit()
+        try:
+            self.currentWidget().dataValue()
+            self.dataValueChanged.emit()
+        except (TypeError, ValueError):
+            pass

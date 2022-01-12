@@ -44,6 +44,9 @@ def test_BoolCheckBox(qtbot):
 def test_IntLineEdit(qtbot):
     widget = IntLineEdit()
 
+    with pytest.raises(TypeError):
+        widget.dataValue()
+
     # test default data value
     widget.setDefaultDataValue(1)
     assert widget.dataValue() == 1
@@ -81,6 +84,9 @@ def test_IntLineEdit(qtbot):
 
 def test_FloatLineEdit(qtbot):
     widget = FloatLineEdit()
+
+    with pytest.raises(TypeError):
+        widget.dataValue()
 
     # test default data value
     widget.setDefaultDataValue(1)
@@ -147,6 +153,9 @@ def test_TupleGroupBox(qtbot):
     widgets = [IntLineEdit(), FloatLineEdit()]
     widget = TupleGroupBox.fromWidgets(widgets)
 
+    with pytest.raises(TypeError):
+        widget.dataValue()
+
     # test dataValueChanged signal
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
@@ -154,7 +163,7 @@ def test_TupleGroupBox(qtbot):
         widget.widgets()[0].setText('42')
         qtbot.keyPress(widget.widgets()[0], Qt.Key_Return)
         widget.widgets()[1].setText('0')
-        qtbot.keyPress(widget.widgets()[0], Qt.Key_Return)
+        qtbot.keyPress(widget.widgets()[1], Qt.Key_Return)
     assert widget.dataValue() == (42, 0.0)
 
 

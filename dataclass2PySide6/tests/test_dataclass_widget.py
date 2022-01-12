@@ -127,32 +127,29 @@ def test_nested_DataclassWidget_construction(qtbot, nested_dcw):
 
 
 def test_DataclassWidget_dataValueChanged(qtbot, dclswidget):
-    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
+    # signal is not emitted until all values are valid
+    with qtbot.assertNotEmitted(dclswidget.dataValueChanged):
         dclswidget.widgets()["bool1"].setChecked(True)
-
-    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
+    with qtbot.assertNotEmitted(dclswidget.dataValueChanged):
         widget = dclswidget.widgets()["int1"]
         widget.setText("42")
         qtbot.keyPress(widget, Qt.Key_Return)
-
-    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
+    with qtbot.assertNotEmitted(dclswidget.dataValueChanged):
         widget = dclswidget.widgets()["float1"]
         widget.setText("4.2")
         qtbot.keyPress(widget, Qt.Key_Return)
-
-    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
+    with qtbot.assertNotEmitted(dclswidget.dataValueChanged):
         widget = dclswidget.widgets()["str1"]
         widget.setText("foo")
         qtbot.keyPress(widget, Qt.Key_Return)
-
-    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
+    with qtbot.assertNotEmitted(dclswidget.dataValueChanged):
         dclswidget.widgets()["Tuple1"].widgets()[0].setChecked(True)
-
-    with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
+    with qtbot.assertNotEmitted(dclswidget.dataValueChanged):
         widget = dclswidget.widgets()["Tuple1"].widgets()[1]
         widget.setText("42")
         qtbot.keyPress(widget, Qt.Key_Return)
 
+    # now, signal is emitted
     with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
         widget = dclswidget.widgets()["Tuple2"].widgets()[1].widgets()[0]
         widget.setText("42")
@@ -163,7 +160,7 @@ def test_nested_DataclassWidget_dataValueChanged(qtbot, nested_dcw):
     widget_dcls2 = nested_dcw.widgets()["b"]
     widget_dcls1 = widget_dcls2.widgets()["y"]
 
-    with qtbot.waitSignal(nested_dcw.dataValueChanged, raising=True):
+    with qtbot.assertNotEmitted(nested_dcw.dataValueChanged):
         widget = widget_dcls1.widgets()["z"]
         widget.setText("10")
         qtbot.keyPress(widget, Qt.Key_Return)
@@ -173,19 +170,34 @@ def test_nested_DataclassWidget_dataValueChanged(qtbot, nested_dcw):
         widget.setText("10")
         qtbot.keyPress(widget, Qt.Key_Return)
 
-    with qtbot.waitSignal(nested_dcw.dataValueChanged, raising=True):
-        nested_dcw.widgets()["a"].setChecked(True)
-
 
 def test_DataclassWidget_dataValue(qtbot, dclswidget):
     dclstype = dclswidget.dataclassType()
 
-    assert dclswidget.dataValue() == dclstype(bool1=False,
-                                              int1=int(0),
-                                              float1=float(0),
-                                              str1="",
-                                              Tuple1=(False, 0),
-                                              Tuple2=(False, (0,)),
+    dclswidget.widgets()["bool1"].setChecked(True)
+    widget = dclswidget.widgets()["int1"]
+    widget.setText("1")
+    qtbot.keyPress(widget, Qt.Key_Return)
+    widget = dclswidget.widgets()["float1"]
+    widget.setText("2.3")
+    qtbot.keyPress(widget, Qt.Key_Return)
+    widget = dclswidget.widgets()["str1"]
+    widget.setText("foo")
+    qtbot.keyPress(widget, Qt.Key_Return)
+    dclswidget.widgets()["Tuple1"].widgets()[0].setChecked(True)
+    widget = dclswidget.widgets()["Tuple1"].widgets()[1]
+    widget.setText("4")
+    qtbot.keyPress(widget, Qt.Key_Return)
+    widget = dclswidget.widgets()["Tuple2"].widgets()[1].widgets()[0]
+    widget.setText("5")
+    qtbot.keyPress(widget, Qt.Key_Return)
+
+    assert dclswidget.dataValue() == dclstype(bool1=True,
+                                              int1=1,
+                                              float1=2.3,
+                                              str1="foo",
+                                              Tuple1=(True, 4),
+                                              Tuple2=(False, (5,)),
                                               my_enum1=MyEnum.x)
 
 
@@ -196,7 +208,15 @@ def test_nested_DataclassWidget_dataValue(qtbot, nested_dcw):
     widget_dcls1 = widget_dcls2.widgets()["y"]
     dcls1 = widget_dcls1.dataclassType()
 
-    assert nested_dcw.dataValue() == dcls3(a=False, b=dcls2(x=0, y=dcls1(z=0)))
+    widget = widget_dcls1.widgets()["z"]
+    widget.setText("1")
+    qtbot.keyPress(widget, Qt.Key_Return)
+
+    widget = widget_dcls2.widgets()["x"]
+    widget.setText("2")
+    qtbot.keyPress(widget, Qt.Key_Return)
+
+    assert nested_dcw.dataValue() == dcls3(a=False, b=dcls2(x=2, y=dcls1(z=1)))
 
 
 def test_DataclassWidget_setDataValue(qtbot, dclswidget):
@@ -309,16 +329,19 @@ def test_StackedDataclassWidget(qtbot, stackedwidget):
 
 def test_StackedDataclassWidget_dataValueChanged(qtbot, stackedwidget):
 
+    stackedwidget.setCurrentIndex(0)
     with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
         widget = stackedwidget.widget(0).widgets()["a"]
         widget.setText("10")
         qtbot.keyPress(widget, Qt.Key_Return)
 
+    stackedwidget.setCurrentIndex(1)
     with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
         widget = stackedwidget.widget(1).widgets()["b"]
         widget.setText("10")
         qtbot.keyPress(widget, Qt.Key_Return)
 
+    stackedwidget.setCurrentIndex(2)
     with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
         widget = stackedwidget.widget(2).widgets()["c"]
         widget.setText("10")
@@ -440,16 +463,19 @@ def test_TabdataclassWidget(qtbot, tabwidget):
 
 def test_TabdataclassWidget_dataValueChanged(qtbot, tabwidget):
 
+    tabwidget.setCurrentIndex(0)
     with qtbot.waitSignal(tabwidget.dataValueChanged, raising=True):
         widget = tabwidget.widget(0).widgets()["a"]
         widget.setText("10")
         qtbot.keyPress(widget, Qt.Key_Return)
 
+    tabwidget.setCurrentIndex(1)
     with qtbot.waitSignal(tabwidget.dataValueChanged, raising=True):
         widget = tabwidget.widget(1).widgets()["b"]
         widget.setText("10")
         qtbot.keyPress(widget, Qt.Key_Return)
 
+    tabwidget.setCurrentIndex(2)
     with qtbot.waitSignal(tabwidget.dataValueChanged, raising=True):
         widget = tabwidget.widget(2).widgets()["c"]
         widget.setText("10")
