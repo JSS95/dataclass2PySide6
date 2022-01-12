@@ -331,6 +331,47 @@ class TabDataclassWidget(QTabWidget):
 
         self._dataclasses: Dict[type, int] = {}
 
+    def addTab(self, widget: QWidget, *args):
+        # force size policy to make ignore the size of hidden widget
+        widget.setSizePolicy(
+            QSizePolicy.Ignored,
+            QSizePolicy.Ignored
+        )
+        super().addTab(widget, *args)
+
+    def setCurrentIndex(self, index: int):
+        old_widget = self.currentWidget()
+        if old_widget is not None:
+            old_widget.setSizePolicy(
+                QSizePolicy.Ignored,
+                QSizePolicy.Ignored
+            )
+        new_widget = self.widget(index)
+        if new_widget is not None:
+            new_widget.setSizePolicy(
+                QSizePolicy.Preferred,
+                QSizePolicy.Preferred
+            )
+            new_widget.adjustSize()
+        super().setCurrentIndex(index)
+        self.adjustSize()
+
+    def setCurrentWidget(self, w: QStackedWidget):
+        old_widget = self.currentWidget()
+        if old_widget is not None:
+            old_widget.setSizePolicy(
+                QSizePolicy.Ignored,
+                QSizePolicy.Ignored
+            )
+        if w is not None:
+            w.setSizePolicy(
+                QSizePolicy.Preferred,
+                QSizePolicy.Preferred
+            )
+            w.adjustSize()
+        super().setCurrentWidget(w)
+        self.adjustSize()
+
     def addDataclass(self, dcls: type, label: str):
         """Construct and add the :class:`DataclassWidget`"""
         widget = DataclassWidget.fromDataclass(dcls)

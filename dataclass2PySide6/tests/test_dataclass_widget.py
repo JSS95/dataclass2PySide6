@@ -234,6 +234,27 @@ def test_nested_DataclassWidget_setDataValue_dict(qtbot, nested_dcw):
     assert nested_dcw.dataValue() == dc
 
 
+def test_DataclassWidget_str_annotation(qtbot):
+
+    @dataclasses.dataclass
+    class A:
+        x: "int"
+    @dataclasses.dataclass
+    class B(A):
+        y: "float"
+    @dataclasses.dataclass
+    class C(B):
+        z: "bool"
+
+    widgetA = DataclassWidget.fromDataclass(A)
+    widgetB = DataclassWidget.fromDataclass(B)
+    widgetC = DataclassWidget.fromDataclass(C)
+
+    assert isinstance(widgetA.widgets()["x"], IntLineEdit)
+    assert isinstance(widgetB.widgets()["y"], FloatLineEdit)
+    assert isinstance(widgetC.widgets()["z"], BoolCheckBox)
+
+
 @pytest.fixture
 def stackedwidget(qtbot):
     @dataclasses.dataclass
@@ -408,22 +429,72 @@ def test_TabdataclassWidget_dataValueChanged(qtbot, tabwidget):
         tabwidget.widget(2).widgets()["c"].setText("10")
 
 
-def test_DataclassWidget_str_annotation(qtbot):
+def test_TabdataclassWidget_widgets_sizePolicy(qtbot, tabwidget):
+    widget0 = tabwidget.widget(0)
+    widget1 = tabwidget.widget(1)
+    widget2 = tabwidget.widget(2)
 
-    @dataclasses.dataclass
-    class A:
-        x: "int"
-    @dataclasses.dataclass
-    class B(A):
-        y: "float"
-    @dataclasses.dataclass
-    class C(B):
-        z: "bool"
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
-    widgetA = DataclassWidget.fromDataclass(A)
-    widgetB = DataclassWidget.fromDataclass(B)
-    widgetC = DataclassWidget.fromDataclass(C)
+    tabwidget.setCurrentIndex(0)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    tabwidget.setCurrentIndex(1)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    tabwidget.setCurrentIndex(2)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    tabwidget.setCurrentIndex(-1)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
-    assert isinstance(widgetA.widgets()["x"], IntLineEdit)
-    assert isinstance(widgetB.widgets()["y"], FloatLineEdit)
-    assert isinstance(widgetC.widgets()["z"], BoolCheckBox)
+    tabwidget.setCurrentWidget(widget0)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    tabwidget.setCurrentWidget(widget1)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    tabwidget.setCurrentWidget(widget2)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+    tabwidget.setCurrentWidget(None)
+    assert widget0.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget1.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+    assert widget2.sizePolicy() == \
+           QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
