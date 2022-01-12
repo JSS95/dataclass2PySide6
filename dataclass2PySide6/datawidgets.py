@@ -3,11 +3,11 @@ Widgets to represent data of dataclass.
 
 Every widget has following methods and attributes:
 
-* ``dataName()`` : Returns the data name as str
-* ``setDataName()`` : Set the data name
-* ``dataValue()`` : Returns the data value in correct type
-* ``dataValueChanged`` : Signal which emits the changed value
-* ``setDataValue()`` : Set the current state of the widget
+* ``dataName()``: Returns the data name as str
+* ``setDataName()``: Set the data name
+* ``dataValue()``: Returns the data value in correct type
+* ``dataValueChanged``: Signal which emits the changed value
+* ``setDataValue()``: Set the current state of the widget
 
 """
 from enum import Enum
@@ -53,7 +53,7 @@ def type2Widget(type_or_annot) -> QWidget:
             raise TypeError(txt)
         widgets = [type2Widget(arg) for arg in args]
         return TupleGroupBox.fromWidgets(widgets)
-    raise TypeError("Unknown type or annotation : %s" % type_or_annot)
+    raise TypeError("Unknown type or annotation: %s" % type_or_annot)
 
 
 class BoolCheckBox(QCheckBox):
@@ -89,7 +89,7 @@ class BoolCheckBox(QCheckBox):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.stateChanged.connect(self.emitDataValueChanged)
+        self.toggled.connect(self.emitDataValueChanged)
 
     def dataName(self) -> str:
         return self.text()
@@ -104,8 +104,8 @@ class BoolCheckBox(QCheckBox):
     def setDataValue(self, value: bool):
         self.setChecked(value)
 
-    def emitDataValueChanged(self, state: int):
-        self.dataValueChanged.emit(bool(state))
+    def emitDataValueChanged(self, checked: bool):
+        self.dataValueChanged.emit(checked)
 
 
 class IntLineEdit(QLineEdit):
@@ -115,9 +115,8 @@ class IntLineEdit(QLineEdit):
     :meth:`dataValue` returns the current integer value. The default
     value is zero.
 
-    The validator is set as ``QIntValidator``. When text is changed or
-    edited, :attr:`dataValueChanged` or :attr:`dataValueEdited`
-    signals are emitted.
+    The validator is set as ``QIntValidator``. When text is edited,
+    :attr:`dataValueChanged` signal is emitted.
 
     :meth:`setDataValue` changes the text.
 
@@ -138,7 +137,6 @@ class IntLineEdit(QLineEdit):
     >>> runGUI() # doctest: +SKIP
     """
     dataValueChanged = Signal(int)
-    dataValueEdited = Signal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -146,8 +144,7 @@ class IntLineEdit(QLineEdit):
         self.setValidator(QIntValidator())
         self.setDefaultDataValue(0)
 
-        self.textChanged.connect(self.emitDataValueChanged)
-        self.textEdited.connect(self.emitDataValueEdited)
+        self.editingFinished.connect(self.emitDataValueChanged)
 
     def dataName(self) -> str:
         return self.placeholderText()
@@ -175,14 +172,12 @@ class IntLineEdit(QLineEdit):
 
     def setDataValue(self, value: int):
         self.setText(str(value))
+        self.emitDataValueChanged()
 
-    def emitDataValueChanged(self, text: str):
+    def emitDataValueChanged(self):
+        text = self.text()
         val = int(text) if text else self.defaultDataValue()
         self.dataValueChanged.emit(val)
-
-    def emitDataValueEdited(self, text: str):
-        val = int(text) if text else self.defaultDataValue()
-        self.dataValueEdited.emit(val)
 
 
 class FloatLineEdit(QLineEdit):
@@ -192,9 +187,8 @@ class FloatLineEdit(QLineEdit):
     :meth:`dataValue` returns the current float value. The default
     value is zero.
 
-    The validator is set as ``QDoubleValidator``. When text is changed
-    or edited, :attr:`dataValueChanged` or :attr:`dataValueEdited`
-    signals are emitted.
+    The validator is set as ``QDoubleValidator``. When text is edited,
+    :attr:`dataValueChanged` signal is emitted.
 
     :meth:`setDataValue` changes the text.
 
@@ -215,7 +209,6 @@ class FloatLineEdit(QLineEdit):
     >>> runGUI() # doctest: +SKIP
     """
     dataValueChanged = Signal(float)
-    dataValueEdited = Signal(float)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -223,8 +216,7 @@ class FloatLineEdit(QLineEdit):
         self.setValidator(QDoubleValidator())
         self.setDefaultDataValue(float(0))
 
-        self.textChanged.connect(self.emitDataValueChanged)
-        self.textEdited.connect(self.emitDataValueEdited)
+        self.editingFinished.connect(self.emitDataValueChanged)
 
     def dataName(self) -> str:
         return self.placeholderText()
@@ -252,14 +244,12 @@ class FloatLineEdit(QLineEdit):
 
     def setDataValue(self, value: float):
         self.setText(str(value))
+        self.emitDataValueChanged()
 
-    def emitDataValueChanged(self, text: str):
+    def emitDataValueChanged(self):
+        text = self.text()
         val = float(text) if text else self.defaultDataValue()
         self.dataValueChanged.emit(val)
-
-    def emitDataValueEdited(self, text: str):
-        val = float(text) if text else self.defaultDataValue()
-        self.dataValueEdited.emit(val)
 
 
 class StrLineEdit(QLineEdit):
@@ -268,8 +258,7 @@ class StrLineEdit(QLineEdit):
 
     :meth:`dataValue` returns the current str value.
 
-    When text is changed or edited, :attr:`dataValueChanged` or
-    :attr:`dataValueEdited` signals are emitted.
+    When text is edited, :attr:`dataValueChanged` signal is emitted.
 
     :meth:`setDataValue` changes the text.
 
@@ -290,13 +279,11 @@ class StrLineEdit(QLineEdit):
     >>> runGUI() # doctest: +SKIP
     """
     dataValueChanged = Signal(str)
-    dataValueEdited = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.textChanged.connect(self.emitDataValueChanged)
-        self.textEdited.connect(self.emitDataValueEdited)
+        self.editingFinished.connect(self.emitDataValueChanged)
 
     def dataName(self) -> str:
         return self.placeholderText()
@@ -310,12 +297,10 @@ class StrLineEdit(QLineEdit):
 
     def setDataValue(self, value: str):
         self.setText(str(value))
+        self.emitDataValueChanged()
 
-    def emitDataValueChanged(self, text: str):
-        self.dataValueChanged.emit(str(text))
-
-    def emitDataValueEdited(self, text: str):
-        self.dataValueEdited.emit(str(text))
+    def emitDataValueChanged(self):
+        self.dataValueChanged.emit(self.text())
 
 
 class TupleGroupBox(QGroupBox):

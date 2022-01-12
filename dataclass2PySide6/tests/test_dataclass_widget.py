@@ -1,5 +1,6 @@
 import dataclasses
 from enum import Enum
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QSizePolicy
 import pytest
 from dataclass2PySide6 import (DataclassWidget, StackedDataclassWidget,
@@ -130,22 +131,32 @@ def test_DataclassWidget_dataValueChanged(qtbot, dclswidget):
         dclswidget.widgets()["bool1"].setChecked(True)
 
     with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
-        dclswidget.widgets()["int1"].setText("42")
+        widget = dclswidget.widgets()["int1"]
+        widget.setText("42")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
-        dclswidget.widgets()["float1"].setText("4.2")
+        widget = dclswidget.widgets()["float1"]
+        widget.setText("4.2")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
-        dclswidget.widgets()["str1"].setText("foo")
+        widget = dclswidget.widgets()["str1"]
+        widget.setText("foo")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
         dclswidget.widgets()["Tuple1"].widgets()[0].setChecked(True)
 
     with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
-        dclswidget.widgets()["Tuple1"].widgets()[1].setText("42")
+        widget = dclswidget.widgets()["Tuple1"].widgets()[1]
+        widget.setText("42")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     with qtbot.waitSignal(dclswidget.dataValueChanged, raising=True):
-        dclswidget.widgets()["Tuple2"].widgets()[1].widgets()[0].setText("42")
+        widget = dclswidget.widgets()["Tuple2"].widgets()[1].widgets()[0]
+        widget.setText("42")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
 
 def test_nested_DataclassWidget_dataValueChanged(qtbot, nested_dcw):
@@ -153,10 +164,14 @@ def test_nested_DataclassWidget_dataValueChanged(qtbot, nested_dcw):
     widget_dcls1 = widget_dcls2.widgets()["y"]
 
     with qtbot.waitSignal(nested_dcw.dataValueChanged, raising=True):
-        widget_dcls1.widgets()["z"].setText("10")
+        widget = widget_dcls1.widgets()["z"]
+        widget.setText("10")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     with qtbot.waitSignal(nested_dcw.dataValueChanged, raising=True):
-        widget_dcls2.widgets()["x"].setText("10")
+        widget = widget_dcls2.widgets()["x"]
+        widget.setText("10")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     with qtbot.waitSignal(nested_dcw.dataValueChanged, raising=True):
         nested_dcw.widgets()["a"].setChecked(True)
@@ -259,13 +274,13 @@ def test_DataclassWidget_str_annotation(qtbot):
 def stackedwidget(qtbot):
     @dataclasses.dataclass
     class Dataclass1:
-        a : int
+        a: int
     @dataclasses.dataclass
     class Dataclass2:
-        b : int
+        b: int
     @dataclasses.dataclass
     class Dataclass3:
-        c : int
+        c: int
     widget = StackedDataclassWidget()
     widget.addDataclass(Dataclass1)
     widget.addDataclass(Dataclass2, "")
@@ -295,13 +310,19 @@ def test_StackedDataclassWidget(qtbot, stackedwidget):
 def test_StackedDataclassWidget_dataValueChanged(qtbot, stackedwidget):
 
     with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
-        stackedwidget.widget(0).widgets()["a"].setText("10")
+        widget = stackedwidget.widget(0).widgets()["a"]
+        widget.setText("10")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
-        stackedwidget.widget(1).widgets()["b"].setText("10")
+        widget = stackedwidget.widget(1).widgets()["b"]
+        widget.setText("10")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     with qtbot.waitSignal(stackedwidget.dataValueChanged, raising=True):
-        stackedwidget.widget(2).widgets()["c"].setText("10")
+        widget = stackedwidget.widget(2).widgets()["c"]
+        widget.setText("10")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
 
 def test_StackedDataclassWidget_widgets_sizePolicy(qtbot, stackedwidget):
@@ -379,13 +400,13 @@ def test_StackedDataclassWidget_widgets_sizePolicy(qtbot, stackedwidget):
 def tabwidget(qtbot):
     @dataclasses.dataclass
     class Dataclass1:
-        a : int
+        a: int
     @dataclasses.dataclass
     class Dataclass2:
-        b : int
+        b: int
     @dataclasses.dataclass
     class Dataclass3:
-        c : int
+        c: int
     widget = TabDataclassWidget()
     widget.addDataclass(Dataclass1, "foo")
     widget.addDataclass(Dataclass2, "bar")
@@ -420,13 +441,19 @@ def test_TabdataclassWidget(qtbot, tabwidget):
 def test_TabdataclassWidget_dataValueChanged(qtbot, tabwidget):
 
     with qtbot.waitSignal(tabwidget.dataValueChanged, raising=True):
-        tabwidget.widget(0).widgets()["a"].setText("10")
+        widget = tabwidget.widget(0).widgets()["a"]
+        widget.setText("10")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     with qtbot.waitSignal(tabwidget.dataValueChanged, raising=True):
-        tabwidget.widget(1).widgets()["b"].setText("10")
+        widget = tabwidget.widget(1).widgets()["b"]
+        widget.setText("10")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     with qtbot.waitSignal(tabwidget.dataValueChanged, raising=True):
-        tabwidget.widget(2).widgets()["c"].setText("10")
+        widget = tabwidget.widget(2).widgets()["c"]
+        widget.setText("10")
+        qtbot.keyPress(widget, Qt.Key_Return)
 
 
 def test_TabdataclassWidget_widgets_sizePolicy(qtbot, tabwidget):
