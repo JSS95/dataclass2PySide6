@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 import pytest
 from dataclass2PySide6 import (type2Widget, BoolCheckBox, IntLineEdit,
     FloatLineEdit, StrLineEdit, TupleGroupBox, EnumComboBox)
-from typing import Tuple
+from typing import Tuple, Union, Optional
 
 
 def test_type2Widget(qtbot):
@@ -25,6 +25,13 @@ def test_type2Widget(qtbot):
     assert isinstance(tuplegbox2.widgets()[0], BoolCheckBox)
     assert isinstance(tuplegbox2.widgets()[1], TupleGroupBox)
     assert isinstance(tuplegbox2.widgets()[1].widgets()[0], IntLineEdit)
+
+
+@pytest.mark.xfail
+def test_type2Widget_Union(qtbot):
+    with pytest.raises(TypeError):
+        type2Widget(Union[int, float])
+    assert isinstance(type2Widget(Optional[bool]), BoolCheckBox)
 
 
 def test_BoolCheckBox(qtbot):
