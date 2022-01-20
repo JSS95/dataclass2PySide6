@@ -27,11 +27,13 @@ def test_type2Widget(qtbot):
     assert isinstance(tuplegbox2.widgets()[1].widgets()[0], IntLineEdit)
 
 
-@pytest.mark.xfail
 def test_type2Widget_Union(qtbot):
     with pytest.raises(TypeError):
         type2Widget(Union[int, float])
-    assert isinstance(type2Widget(Optional[bool]), BoolCheckBox)
+
+    tristate_checkbox = type2Widget(Optional[bool])
+    assert isinstance(tristate_checkbox, BoolCheckBox)
+    assert tristate_checkbox.isTristate()
 
 
 def test_BoolCheckBox(qtbot):
