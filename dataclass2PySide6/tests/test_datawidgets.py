@@ -2,7 +2,7 @@ from enum import Enum
 from PySide6.QtCore import Qt
 import pytest
 from dataclass2PySide6 import (type2Widget, BoolCheckBox, IntLineEdit,
-    FloatLineEdit, StrLineEdit, TupleGroupBox, EnumComboBox)
+    FloatLineEdit, StrLineEdit, TupleGroupBox, EnumComboBox, MISSING)
 from typing import Tuple, Union, Optional
 
 
@@ -34,6 +34,14 @@ def test_type2Widget_Union(qtbot):
     tristate_checkbox = type2Widget(Optional[bool])
     assert isinstance(tristate_checkbox, BoolCheckBox)
     assert tristate_checkbox.isTristate()
+
+    optint_checkbox = type2Widget(Optional[int])
+    assert isinstance(optint_checkbox, IntLineEdit)
+    assert optint_checkbox.defaultDataValue() is None
+
+    optfloat_checkbox = type2Widget(Optional[float])
+    assert isinstance(optfloat_checkbox, FloatLineEdit)
+    assert optfloat_checkbox.defaultDataValue() is None
 
 
 def test_BoolCheckBox(qtbot):
@@ -68,14 +76,24 @@ def test_BoolCheckBox(qtbot):
 def test_IntLineEdit(qtbot):
     widget = IntLineEdit()
 
+    assert not widget.hasDefaultDataValue()
     with pytest.raises(TypeError):
         widget.dataValue()
 
     # test default data value
     widget.setDefaultDataValue(1)
+    assert widget.hasDefaultDataValue()
     assert widget.dataValue() == 1
     widget.setDefaultDataValue(10)
+    assert widget.hasDefaultDataValue()
     assert widget.dataValue() == 10
+    widget.setDefaultDataValue(None)
+    assert widget.hasDefaultDataValue()
+    assert widget.dataValue() == None
+    widget.setDefaultDataValue(MISSING)
+    assert not widget.hasDefaultDataValue()
+    with pytest.raises(TypeError):
+        widget.dataValue()
 
     # test dataValueChanged signal
     with qtbot.waitSignal(widget.dataValueChanged,
@@ -94,6 +112,25 @@ def test_IntLineEdit(qtbot):
         qtbot.keyPress(widget, Qt.Key_Return)
     assert widget.dataValue() == -1
 
+    # dataValueChanged signal with empty text
+    widget.clear()
+    with qtbot.assertNotEmitted(widget.dataValueChanged):
+        qtbot.keyPress(widget, Qt.Key_Return)
+    with pytest.raises(TypeError):
+        widget.dataValue()
+
+    widget.setDefaultDataValue(None)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val is None):
+        qtbot.keyPress(widget, Qt.Key_Return)
+
+    widget.setDefaultDataValue(10)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val == 10):
+        qtbot.keyPress(widget, Qt.Key_Return)
+
     # test validator
     widget.clear()
     with qtbot.waitSignal(widget.dataValueChanged,
@@ -109,14 +146,24 @@ def test_IntLineEdit(qtbot):
 def test_FloatLineEdit(qtbot):
     widget = FloatLineEdit()
 
+    assert not widget.hasDefaultDataValue()
     with pytest.raises(TypeError):
         widget.dataValue()
 
     # test default data value
     widget.setDefaultDataValue(1)
+    assert widget.hasDefaultDataValue()
     assert widget.dataValue() == float(1)
     widget.setDefaultDataValue(10)
+    assert widget.hasDefaultDataValue()
     assert widget.dataValue() == float(10)
+    widget.setDefaultDataValue(None)
+    assert widget.hasDefaultDataValue()
+    assert widget.dataValue() == None
+    widget.setDefaultDataValue(MISSING)
+    assert not widget.hasDefaultDataValue()
+    with pytest.raises(TypeError):
+        widget.dataValue()
 
     # test dataValueChanged signal
     with qtbot.waitSignal(widget.dataValueChanged,
@@ -138,6 +185,25 @@ def test_FloatLineEdit(qtbot):
         qtbot.keyPress(widget, '2')
         qtbot.keyPress(widget, Qt.Key_Return)
     assert widget.dataValue() == -1.2
+
+    # dataValueChanged signal with empty text
+    widget.clear()
+    with qtbot.assertNotEmitted(widget.dataValueChanged):
+        qtbot.keyPress(widget, Qt.Key_Return)
+    with pytest.raises(TypeError):
+        widget.dataValue()
+
+    widget.setDefaultDataValue(None)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val is None):
+        qtbot.keyPress(widget, Qt.Key_Return)
+
+    widget.setDefaultDataValue(float(10))
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val == float(10)):
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     # test validator
     widget.clear()
