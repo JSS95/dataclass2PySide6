@@ -11,11 +11,11 @@ Every widget has following methods and attributes:
 
 """
 from enum import Enum
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QComboBox,
     QGroupBox, QHBoxLayout)
-from typing import List, Optional
+from typing import List, Optional, Union
 
 
 __all__ = [
@@ -44,28 +44,41 @@ def type2Widget(type_or_annot) -> QWidget:
         return StrLineEdit()
     if isinstance(type_or_annot, type) and issubclass(type_or_annot, Enum):
         return EnumComboBox.fromEnum(type_or_annot)
-    if getattr(type_or_annot, "__origin__", None) is tuple: # Tuple
-        args = getattr(type_or_annot, "__args__", None)
+    origin = getattr(type_or_annot, '__origin__', None)
+    if origin is tuple: # Tuple
+        args = getattr(type_or_annot, '__args__', None)
         if args is None:
-            raise TypeError("%s does not have argument type" % type_or_annot)
+            raise TypeError('%s does not have argument type' % type_or_annot)
         if Ellipsis in args:
-            txt = "Number of arguments of %s not fixed" % type_or_annot
+            txt = 'Number of arguments of %s not fixed' % type_or_annot
             raise TypeError(txt)
         widgets = [type2Widget(arg) for arg in args]
         return TupleGroupBox.fromWidgets(widgets)
-    raise TypeError("Unknown type or annotation: %s" % type_or_annot)
+    elif origin is Union:
+        args = [a for a in type_or_annot.__args__ if a is not type(None)]
+        if len(args) > 1:
+            msg = f'Cannot convert Union with multiple types: {type_or_annot}'
+            raise TypeError(msg)
+        arg, = args
+        if isinstance(arg, type) and issubclass(arg, bool):
+            ret = BoolCheckBox()
+            ret.setTristate(True)
+            return ret
+    raise TypeError('Unknown type or annotation: %s' % type_or_annot)
 
 
 class BoolCheckBox(QCheckBox):
     """
-    Checkbox for boolean value.
+    Checkbox for fuzzy boolean value. If tristate is allowed, boolean
+    value and ``None`` are allowed for data. If not, only boolean value
+    is allowed.
 
-    :meth:`dataValue` returns the current boolean value.
+    :meth:`dataValue` returns the current value.
 
     When the check state is changed, :attr:`dataValueChanged` signal is
     emiited.
 
-    :meth:`setDataValue` checks and unchecks the checkbox.
+    :meth:`setDataValue` changes the check state of the checkbox.
 
     Examples
     ========
@@ -76,6 +89,7 @@ class BoolCheckBox(QCheckBox):
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = BoolCheckBox()
+    ...     widget.setTristate(True)
     ...     geometry = widget.screen().availableGeometry()
     ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
@@ -84,12 +98,12 @@ class BoolCheckBox(QCheckBox):
     >>> runGUI() # doctest: +SKIP
 
     """
-    dataValueChanged = Signal(bool)
+    dataValueChanged = Signal(object) # bool or None
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.toggled.connect(self.emitDataValueChanged)
+        self.stateChanged.connect(self.emitDataValueChanged)
 
     def dataName(self) -> str:
         return self.text()
@@ -99,13 +113,32 @@ class BoolCheckBox(QCheckBox):
         self.setToolTip(name)
 
     def dataValue(self) -> bool:
-        return self.isChecked()
+        checkstate = self.checkState()
+        if checkstate == Qt.Checked:
+            state = True
+        elif checkstate == Qt.Unchecked:
+            state = False
+        else:
+            state = None
+        return state
 
-    def setDataValue(self, value: bool):
-        self.setChecked(value)
+    def setDataValue(self, value: Union[bool, None]):
+        if value is True:
+            state = Qt.Checked
+        elif value is False:
+            state = Qt.Unchecked
+        else:
+            state = Qt.PartiallyChecked
+        self.setCheckState(state)
 
-    def emitDataValueChanged(self, checked: bool):
-        self.dataValueChanged.emit(checked)
+    def emitDataValueChanged(self, checkstate: Qt.CheckState):
+        if checkstate == Qt.Checked:
+            state = True
+        elif checkstate == Qt.Unchecked:
+            state = False
+        else:
+            state = None
+        self.dataValueChanged.emit(state)
 
 
 class IntLineEdit(QLineEdit):
@@ -164,7 +197,7 @@ class IntLineEdit(QLineEdit):
         val = int(text) if text else self.defaultDataValue()
         if val is None:
             name = self.dataName() or str(self)
-            raise TypeError("Missing data for %s" % name)
+            raise TypeError('Missing data for %s' % name)
         return val
 
     def defaultDataValue(self) -> Optional[int]:
@@ -254,7 +287,7 @@ class FloatLineEdit(QLineEdit):
         val = float(text) if text else self.defaultDataValue()
         if val is None:
             name = self.dataName() or str(self)
-            raise TypeError("Missing data for %s" % name)
+            raise TypeError('Missing data for %s' % name)
         return val
 
     def defaultDataValue(self) -> Optional[float]:
@@ -377,7 +410,7 @@ class TupleGroupBox(QGroupBox):
     dataValueChanged = Signal(tuple)
 
     @classmethod
-    def fromWidgets(cls, widgets: List[QWidget]) -> "TupleGroupBox":
+    def fromWidgets(cls, widgets: List[QWidget]) -> 'TupleGroupBox':
         obj = cls()
         obj._widgets = widgets
         obj.initWidgets()
@@ -467,7 +500,7 @@ class EnumComboBox(QComboBox):
     dataValueChanged = Signal(Enum)
 
     @classmethod
-    def fromEnum(cls, enum: type) -> "EnumComboBox":
+    def fromEnum(cls, enum: type) -> 'EnumComboBox':
         obj = cls()
         for e in enum:
             obj.addItem(e.name, userData=e)

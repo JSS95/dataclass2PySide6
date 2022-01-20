@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 import pytest
 from dataclass2PySide6 import (type2Widget, BoolCheckBox, IntLineEdit,
     FloatLineEdit, StrLineEdit, TupleGroupBox, EnumComboBox)
-from typing import Tuple
+from typing import Tuple, Union, Optional
 
 
 def test_type2Widget(qtbot):
@@ -27,18 +27,42 @@ def test_type2Widget(qtbot):
     assert isinstance(tuplegbox2.widgets()[1].widgets()[0], IntLineEdit)
 
 
+def test_type2Widget_Union(qtbot):
+    with pytest.raises(TypeError):
+        type2Widget(Union[int, float])
+
+    tristate_checkbox = type2Widget(Optional[bool])
+    assert isinstance(tristate_checkbox, BoolCheckBox)
+    assert tristate_checkbox.isTristate()
+
+
 def test_BoolCheckBox(qtbot):
     widget = BoolCheckBox()
 
     # test dataValueChanged signal
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
-                          check_params_cb=lambda val: val):
-        widget.setChecked(True)
+                          check_params_cb=lambda val: val is True):
+        widget.setCheckState(Qt.Checked)
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
-                          check_params_cb=lambda val: not val):
-        widget.setChecked(False)
+                          check_params_cb=lambda val: val is False):
+        widget.setCheckState(Qt.Unchecked)
+
+    # test tristate
+    widget.setTristate(True)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val is True):
+        widget.setCheckState(Qt.Checked)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val is False):
+        widget.setCheckState(Qt.Unchecked)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val is None):
+        widget.setCheckState(Qt.PartiallyChecked)
 
 
 def test_IntLineEdit(qtbot):
