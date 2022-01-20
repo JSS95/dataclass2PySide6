@@ -2,7 +2,7 @@ from enum import Enum
 from PySide6.QtCore import Qt
 import pytest
 from dataclass2PySide6 import (type2Widget, BoolCheckBox, IntLineEdit,
-    FloatLineEdit, StrLineEdit, TupleGroupBox, EnumComboBox)
+    FloatLineEdit, StrLineEdit, TupleGroupBox, EnumComboBox, MISSING)
 from typing import Tuple, Union, Optional
 
 
@@ -83,6 +83,11 @@ def test_IntLineEdit(qtbot):
     assert widget.dataValue() == 1
     widget.setDefaultDataValue(10)
     assert widget.dataValue() == 10
+    widget.setDefaultDataValue(None)
+    assert widget.dataValue() == None
+    widget.setDefaultDataValue(MISSING)
+    with pytest.raises(TypeError):
+        widget.dataValue()
 
     # test dataValueChanged signal
     with qtbot.waitSignal(widget.dataValueChanged,

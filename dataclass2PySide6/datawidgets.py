@@ -21,12 +21,12 @@ from typing import List, Optional, Union
 __all__ = [
     "type2Widget",
     "BoolCheckBox",
+    "MISSING",
     "IntLineEdit",
     "FloatLineEdit",
     "StrLineEdit",
     "TupleGroupBox",
     "EnumComboBox",
-    "MISSING",
 ]
 
 
@@ -144,6 +144,12 @@ class BoolCheckBox(QCheckBox):
         self.dataValueChanged.emit(state)
 
 
+class _MISSING_TYPE:
+    """Sentinel object to detect if the default value is set or not."""
+    pass
+
+MISSING = _MISSING_TYPE()
+
 class IntLineEdit(QLineEdit):
     """
     Line edit for integer value.
@@ -179,7 +185,7 @@ class IntLineEdit(QLineEdit):
         super().__init__(parent)
 
         self.setValidator(QIntValidator())
-        self.setDefaultDataValue(None)
+        self.setDefaultDataValue(MISSING)
 
         self.editingFinished.connect(self.emitDataValueChanged)
 
@@ -198,26 +204,23 @@ class IntLineEdit(QLineEdit):
         ``TypeError``.
         """
         val = int(text) if text else self.defaultDataValue()
-        if val is None:
+        if val is MISSING:
             name = self.dataName() or str(self)
             raise TypeError('Missing data for %s' % name)
         return val
 
-    def defaultDataValue(self) -> Optional[int]:
+    def defaultDataValue(self) -> object:
         """
         Default value for empty text.
 
-        If line edit is empty, this value is used instead. ``None``
+        If line edit is empty, this value is used instead. ``MISSING``
         indicates no default value, where ``TypeError`` is raised for
         missing value.
         """
         return self._default_data_value
 
-    def setDefaultDataValue(self, val: Optional[int]):
-        if val is None:
-            self._default_data_value = val
-        else:
-            self._default_data_value = int(val)
+    def setDefaultDataValue(self, val: object):
+        self._default_data_value = val
 
     def dataValue(self) -> int:
         text = self.text()
@@ -225,7 +228,10 @@ class IntLineEdit(QLineEdit):
         return val
 
     def setDataValue(self, value: int):
-        self.setText(str(value))
+        if value == self.defaultDataValue():
+            self.setText('')
+        else:
+            self.setText(str(value))
         self.emitDataValueChanged()
 
     def emitDataValueChanged(self):
@@ -535,10 +541,3 @@ class EnumComboBox(QComboBox):
     def emitDataValueChanged(self, index: int):
         if index != -1:
             self.dataValueChanged.emit(self.itemData(index))
-
-
-class _MISSING_TYPE:
-    """Sentinel object to detect if the default value is set or not."""
-    pass
-
-MISSING = _MISSING_TYPE()
