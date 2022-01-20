@@ -64,11 +64,13 @@ def type2Widget(type_or_annot) -> QWidget:
             raise TypeError(msg)
         arg, = args
         if isinstance(arg, type) and issubclass(arg, bool):
-            ret = BoolCheckBox()
-            ret.setTristate(True)
-            return ret
+            widget = type2Widget(arg)
+            widget.setTristate(True)
+            return widget
         if isinstance(arg, type) and issubclass(arg, (int, float)):
-            raise NotImplementedError
+            widget = type2Widget(arg)
+            widget.setDefaultDataValue(None)
+            return widget
     raise TypeError('Unknown type or annotation: %s' % type_or_annot)
 
 

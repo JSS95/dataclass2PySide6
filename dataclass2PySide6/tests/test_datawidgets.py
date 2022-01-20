@@ -27,7 +27,6 @@ def test_type2Widget(qtbot):
     assert isinstance(tuplegbox2.widgets()[1].widgets()[0], IntLineEdit)
 
 
-@pytest.mark.xfail
 def test_type2Widget_Union(qtbot):
     with pytest.raises(TypeError):
         type2Widget(Union[int, float])
@@ -38,11 +37,11 @@ def test_type2Widget_Union(qtbot):
 
     optint_checkbox = type2Widget(Optional[int])
     assert isinstance(optint_checkbox, IntLineEdit)
-    assert optint_checkbox.defaultValue() is None
+    assert optint_checkbox.defaultDataValue() is None
 
     optfloat_checkbox = type2Widget(Optional[float])
     assert isinstance(optfloat_checkbox, FloatLineEdit)
-    assert optfloat_checkbox.defaultValue() is None
+    assert optfloat_checkbox.defaultDataValue() is None
 
 
 def test_BoolCheckBox(qtbot):
