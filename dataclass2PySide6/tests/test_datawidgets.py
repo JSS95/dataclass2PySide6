@@ -40,12 +40,27 @@ def test_BoolCheckBox(qtbot):
     # test dataValueChanged signal
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
-                          check_params_cb=lambda val: val):
-        widget.setChecked(True)
+                          check_params_cb=lambda val: val is True):
+        widget.setCheckState(Qt.Checked)
     with qtbot.waitSignal(widget.dataValueChanged,
                           raising=True,
-                          check_params_cb=lambda val: not val):
-        widget.setChecked(False)
+                          check_params_cb=lambda val: val is False):
+        widget.setCheckState(Qt.Unchecked)
+
+    # test tristate
+    widget.setTristate(True)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val is True):
+        widget.setCheckState(Qt.Checked)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val is False):
+        widget.setCheckState(Qt.Unchecked)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val is None):
+        widget.setCheckState(Qt.PartiallyChecked)
 
 
 def test_IntLineEdit(qtbot):

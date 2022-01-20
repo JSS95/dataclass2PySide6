@@ -11,7 +11,7 @@ Every widget has following methods and attributes:
 
 """
 from enum import Enum
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QComboBox,
     QGroupBox, QHBoxLayout)
@@ -67,14 +67,16 @@ def type2Widget(type_or_annot) -> QWidget:
 
 class BoolCheckBox(QCheckBox):
     """
-    Checkbox for boolean value.
+    Checkbox for fuzzy boolean value. If tristate is allowed, boolean
+    value and ``None`` are allowed for data. If not, only boolean value
+    is allowed.
 
-    :meth:`dataValue` returns the current boolean value.
+    :meth:`dataValue` returns the current value.
 
     When the check state is changed, :attr:`dataValueChanged` signal is
     emiited.
 
-    :meth:`setDataValue` checks and unchecks the checkbox.
+    :meth:`setDataValue` changes the check state of the checkbox.
 
     Examples
     ========
@@ -85,6 +87,7 @@ class BoolCheckBox(QCheckBox):
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = BoolCheckBox()
+    ...     widget.setTristate(True)
     ...     geometry = widget.screen().availableGeometry()
     ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
@@ -93,12 +96,12 @@ class BoolCheckBox(QCheckBox):
     >>> runGUI() # doctest: +SKIP
 
     """
-    dataValueChanged = Signal(bool)
+    dataValueChanged = Signal(object) # bool or None
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.toggled.connect(self.emitDataValueChanged)
+        self.stateChanged.connect(self.emitDataValueChanged)
 
     def dataName(self) -> str:
         return self.text()
@@ -108,13 +111,32 @@ class BoolCheckBox(QCheckBox):
         self.setToolTip(name)
 
     def dataValue(self) -> bool:
-        return self.isChecked()
+        checkstate = self.checkState()
+        if checkstate == Qt.Checked:
+            state = True
+        elif checkstate == Qt.Unchecked:
+            state = False
+        else:
+            state = None
+        return state
 
-    def setDataValue(self, value: bool):
-        self.setChecked(value)
+    def setDataValue(self, value: Union[bool, None]):
+        if value is True:
+            state = Qt.Checked
+        elif value is False:
+            state = Qt.Unchecked
+        else:
+            state = Qt.PartiallyChecked
+        self.setCheckState(state)
 
-    def emitDataValueChanged(self, checked: bool):
-        self.dataValueChanged.emit(checked)
+    def emitDataValueChanged(self, checkstate: Qt.CheckState):
+        if checkstate == Qt.Checked:
+            state = True
+        elif checkstate == Qt.Unchecked:
+            state = False
+        else:
+            state = None
+        self.dataValueChanged.emit(state)
 
 
 class IntLineEdit(QLineEdit):
