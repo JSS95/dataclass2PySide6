@@ -64,6 +64,8 @@ def type2Widget(type_or_annot) -> QWidget:
             ret = BoolCheckBox()
             ret.setTristate(True)
             return ret
+        if isinstance(arg, type) and issubclass(arg, (int, float)):
+            raise NotImplementedError
     raise TypeError('Unknown type or annotation: %s' % type_or_annot)
 
 
