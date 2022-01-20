@@ -38,9 +38,11 @@ def test_type2Widget_Union(qtbot):
 
     optint_checkbox = type2Widget(Optional[int])
     assert isinstance(optint_checkbox, IntLineEdit)
+    assert optint_checkbox.defaultValue() is None
 
     optfloat_checkbox = type2Widget(Optional[float])
     assert isinstance(optfloat_checkbox, FloatLineEdit)
+    assert optfloat_checkbox.defaultValue() is None
 
 
 def test_BoolCheckBox(qtbot):
@@ -75,17 +77,22 @@ def test_BoolCheckBox(qtbot):
 def test_IntLineEdit(qtbot):
     widget = IntLineEdit()
 
+    assert not widget.hasDefaultDataValue()
     with pytest.raises(TypeError):
         widget.dataValue()
 
     # test default data value
     widget.setDefaultDataValue(1)
+    assert widget.hasDefaultDataValue()
     assert widget.dataValue() == 1
     widget.setDefaultDataValue(10)
+    assert widget.hasDefaultDataValue()
     assert widget.dataValue() == 10
     widget.setDefaultDataValue(None)
+    assert widget.hasDefaultDataValue()
     assert widget.dataValue() == None
     widget.setDefaultDataValue(MISSING)
+    assert not widget.hasDefaultDataValue()
     with pytest.raises(TypeError):
         widget.dataValue()
 
@@ -105,6 +112,25 @@ def test_IntLineEdit(qtbot):
         qtbot.keyPress(widget, '1')
         qtbot.keyPress(widget, Qt.Key_Return)
     assert widget.dataValue() == -1
+
+    # dataValueChanged signal with empty text
+    widget.clear()
+    with qtbot.assertNotEmitted(widget.dataValueChanged):
+        qtbot.keyPress(widget, Qt.Key_Return)
+    with pytest.raises(TypeError):
+        widget.dataValue()
+
+    widget.setDefaultDataValue(None)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val is None):
+        qtbot.keyPress(widget, Qt.Key_Return)
+
+    widget.setDefaultDataValue(10)
+    with qtbot.waitSignal(widget.dataValueChanged,
+                          raising=True,
+                          check_params_cb=lambda val: val == 10):
+        qtbot.keyPress(widget, Qt.Key_Return)
 
     # test validator
     widget.clear()

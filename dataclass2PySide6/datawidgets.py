@@ -12,7 +12,7 @@ Every widget has following methods and attributes:
 """
 from enum import Enum
 from PySide6.QtCore import Signal, Qt
-from PySide6.QtGui import QIntValidator, QDoubleValidator
+from PySide6.QtGui import QValidator, QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QComboBox,
     QGroupBox, QHBoxLayout)
 from typing import List, Optional, Union
@@ -22,6 +22,7 @@ __all__ = [
     "type2Widget",
     "BoolCheckBox",
     "MISSING",
+    "EmptyIntValidator",
     "IntLineEdit",
     "FloatLineEdit",
     "StrLineEdit",
@@ -150,19 +151,25 @@ class _MISSING_TYPE:
 
 MISSING = _MISSING_TYPE()
 
+
+class EmptyIntValidator(QIntValidator):
+    """Validator which accpets integer and empty string"""
+    def validate(self, input: str, pos: int) -> QValidator.State:
+        ret = super().validate(input, pos)
+        if not input:
+            ret = QValidator.Acceptable
+        return ret
+
+
 class IntLineEdit(QLineEdit):
     """
     Line edit for integer value.
 
-    :meth:`dataValue` returns the value from current text using
-    :meth:`valueFromText`. If the text is empty, return default value
-    from :meth:defaultDataValue`.
+    :meth:`dataValue` returns the value from current text. If the text
+    is empty, return the default value if exists.
 
-    The validator is ``QIntValidator``. When editing is finished,
-    :attr:`dataValueChanged` signal is emitted. Because of the
-    validator, the signal is not emitted for invalid text.
-
-    :meth:`setDataValue` changes the text and emits the signal.
+    When editing is finished, :attr:`dataValueChanged` signal is
+    emitted. :meth:`setDataValue` changes the text and emits the signal.
 
     Examples
     ========
@@ -180,32 +187,55 @@ class IntLineEdit(QLineEdit):
     ...     app.quit()
     >>> runGUI() # doctest: +SKIP
     """
-    dataValueChanged = Signal(int)
+    dataValueChanged = Signal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setValidator(QIntValidator())
+        self._int_validator = QIntValidator(self)
+        self._emptyint_validator = EmptyIntValidator(self)
+
+
+        self.setValidator(self._int_validator)
         self.setDefaultDataValue(MISSING)
 
         self.editingFinished.connect(self.emitDataValueChanged)
 
     def dataName(self) -> str:
+        """
+        Name of the data field, which is displayed as placeholder text.
+        """
         return self.placeholderText()
 
     def setDataName(self, name: str):
+        """
+        Set the name of the data field. The name is displayed as
+        placeholder text and tooltip.
+        """
         self.setPlaceholderText(name)
         self.setToolTip(name)
 
-    def valueFromText(self, text: str) -> int:
+    def valueFromText(self, text: str) -> object:
         """
-        Convert the text to int value.
+        Convert the text to data value.
 
-        If the text is empty and no default value is set, raise
-        ``TypeError``.
+        If the text is not empty, convert it to ``int`` and return.
+
+        If the text is empty but the widget has default data value,
+        return the default value. If the text is empty and there is no
+        default data value, raise ``TypeError``.
+
+        See Also
+        ========
+
+        hasDefaultDataValue, defaultDataValue
+
         """
-        val = int(text) if text else self.defaultDataValue()
-        if val is MISSING:
+        if text:
+            val = int(text)
+        elif self.hasDefaultDataValue():
+            val = self.defaultDataValue()
+        else:
             name = self.dataName() or str(self)
             raise TypeError('Missing data for %s' % name)
         return val
@@ -214,21 +244,53 @@ class IntLineEdit(QLineEdit):
         """
         Default value for empty text.
 
-        If line edit is empty, this value is used instead. ``MISSING``
-        indicates no default value, where ``TypeError`` is raised for
-        missing value.
+        If line edit is empty, this value is used as data instead.
+        ``MISSING`` indicates no default value.
         """
         return self._default_data_value
 
     def setDefaultDataValue(self, val: object):
+        """
+        Set the default value for empty text.
+
+        If ``MISSING`` is passed, it is interpreted as no default value.
+
+        If default value exists, :class:`EmptyIntValidator` is set as
+        validator. If not, ``QIntValidator`` is set as validator.
+
+        """
         self._default_data_value = val
+        if self.hasDefaultDataValue():
+            self.setValidator(self._emptyint_validator)
+        else:
+            self.setValidator(self._int_validator)
+
+    def hasDefaultDataValue(self) -> bool:
+        """
+        Returns whether the widget has default data value.
+
+        If :meth:`defaultDataValue` returns ``MISSING``, return
+        ``False``. Else, return ``True``.
+        """
+        return self.defaultDataValue() is not MISSING
 
     def dataValue(self) -> int:
+        """
+        Return the value from current text.
+
+        Text is converted to value using :meth:`valueFromText`.
+        """
         text = self.text()
         val = self.valueFromText(text)
         return val
 
     def setDataValue(self, value: int):
+        """
+        Set current data value and update the text. If the value is
+        valid, emit to :attr:`dataValueChanged`.
+
+        If the new value is same as the default value, empty str is set.
+        """
         if value == self.defaultDataValue():
             self.setText('')
         else:
@@ -236,17 +298,24 @@ class IntLineEdit(QLineEdit):
         self.emitDataValueChanged()
 
     def emitDataValueChanged(self):
-        text = self.text()
-        val = self.valueFromText(text)
-        self.dataValueChanged.emit(val)
+        """
+        If current :meth:`dataValue` exists, emit it to
+        :attr:`dataValueChanged`.
+        """
+        try:
+            val = self.dataValue()
+            self.dataValueChanged.emit(val)
+        except TypeError:
+            pass
 
 
 class FloatLineEdit(QLineEdit):
     """
     Line edit for float value.
 
-    :meth:`dataValue` returns the float value from current text using
-    :meth:`valueFromText`.
+    :meth:`dataValue` returns the value from current text using
+    :meth:`valueFromText`. If the text is empty, return default value
+    from :meth:defaultDataValue`.
 
     The validator is ``QDoubleValidator``. When editing is finished,
     :attr:`dataValueChanged` signal is emitted. Because of the
