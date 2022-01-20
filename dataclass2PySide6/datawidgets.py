@@ -26,6 +26,7 @@ __all__ = [
     "StrLineEdit",
     "TupleGroupBox",
     "EnumComboBox",
+    "MISSING",
 ]
 
 
@@ -534,3 +535,10 @@ class EnumComboBox(QComboBox):
     def emitDataValueChanged(self, index: int):
         if index != -1:
             self.dataValueChanged.emit(self.itemData(index))
+
+
+class _MISSING_TYPE:
+    """Sentinel object to detect if the default value is set or not."""
+    pass
+
+MISSING = _MISSING_TYPE()
