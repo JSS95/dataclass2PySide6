@@ -154,8 +154,9 @@ class IntLineEdit(QLineEdit):
     """
     Line edit for integer value.
 
-    :meth:`dataValue` returns the integer value from current text using
-    :meth:`valueFromText`.
+    :meth:`dataValue` returns the value from current text using
+    :meth:`valueFromText`. If the text is empty, return default value
+    from :meth:defaultDataValue`.
 
     The validator is ``QIntValidator``. When editing is finished,
     :attr:`dataValueChanged` signal is emitted. Because of the
