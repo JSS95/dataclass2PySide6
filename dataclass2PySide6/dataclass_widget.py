@@ -38,7 +38,7 @@ class DataclassWidget(QGroupBox):
     dataclass instance. :meth:`setDataValue` updates the current states
     of the widgets with dataclass instance. Whenever the data from
     subwidget is changed, :attr:`dataValueChanged` emits the entire
-    new dataclass instance.
+    new dataclass instance if all values are valid.
 
     Examples
     ========
