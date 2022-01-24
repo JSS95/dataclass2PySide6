@@ -35,8 +35,10 @@ class DataclassWidget(QGroupBox):
     and ``setDataValue()`` slot which updates the current value.
 
     :meth:`dataValue` returns the current states of the widgets as
-    dataclass instance. :meth:`setDataValue` updates the current states of
-    the widgets with dataclass instance.
+    dataclass instance. :meth:`setDataValue` updates the current states
+    of the widgets with dataclass instance. Whenever the data from
+    subwidget is changed, :attr:`dataValueChanged` emits the entire
+    new dataclass instance.
 
     Examples
     ========
@@ -67,7 +69,7 @@ class DataclassWidget(QGroupBox):
     >>> runGUI() # doctest: +SKIP
     """
 
-    dataValueChanged = Signal()
+    dataValueChanged = Signal(object)
 
     @classmethod
     def fromDataclass(cls, datacls: type) -> "DataclassWidget":
@@ -141,8 +143,8 @@ class DataclassWidget(QGroupBox):
 
     def emitDataValueChanged(self):
         try:
-            self.dataValue()
-            self.dataValueChanged.emit()
+            val = self.dataValue()
+            self.dataValueChanged.emit(val)
         except (TypeError, ValueError):
             pass
 
@@ -191,7 +193,7 @@ class StackedDataclassWidget(QStackedWidget):
     giten dataclass.
 
     If data value of any dataclass widget is changed,
-    :attr:`dataValueChanged` signal is emitted.
+    :attr:`dataValueChanged` signal emits the new value.
 
     Examples
     ========
@@ -216,7 +218,7 @@ class StackedDataclassWidget(QStackedWidget):
 
     """
 
-    dataValueChanged = Signal()
+    dataValueChanged = Signal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -289,8 +291,8 @@ class StackedDataclassWidget(QStackedWidget):
 
     def emitDataValueChanged(self):
         try:
-            self.currentWidget().dataValue()
-            self.dataValueChanged.emit()
+            val = self.currentWidget().dataValue()
+            self.dataValueChanged.emit(val)
         except (TypeError, ValueError):
             pass
 
@@ -304,7 +306,7 @@ class TabDataclassWidget(QTabWidget):
     giten dataclass.
 
     If data value of any dataclass widget is changed,
-    :attr:`dataValueChanged` signal is emitted.s
+    :attr:`dataValueChanged` signal emits the new value.
 
     Examples
     ========
@@ -332,7 +334,7 @@ class TabDataclassWidget(QTabWidget):
     >>> runGUI() # doctest: +SKIP
 
     """
-    dataValueChanged = Signal()
+    dataValueChanged = Signal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -402,7 +404,7 @@ class TabDataclassWidget(QTabWidget):
 
     def emitDataValueChanged(self):
         try:
-            self.currentWidget().dataValue()
-            self.dataValueChanged.emit()
+            val = self.currentWidget().dataValue()
+            self.dataValueChanged.emit(val)
         except (TypeError, ValueError):
             pass
