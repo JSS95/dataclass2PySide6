@@ -19,6 +19,18 @@ class DataClass:
 
 Dataclass widget can be dynamically created as follows.
 
+```python
+from PySide6.QtWidgets import QApplication
+import sys
+from dataclass2PySide6 import DataclassWidget
+
+app = QApplication(sys.argv)
+widget = DataclassWidget.fromDataclass(DataClass)
+widget.show()
+app.exec()
+app.quit()
+```
+
 <div align="center">
   <img src="https://github.com/JSS95/dataclass2PySide6/raw/master/imgs/example.png"/><br>
 </div>
