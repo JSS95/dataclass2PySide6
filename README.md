@@ -61,8 +61,19 @@ User may subclass `DataclassWidget` to define own datclass widget. Refer to the 
 
 To construct `DataclassWidget`, pass dataclass type object to `DataclassWidget.fromDataclass()` method.
 
-To construct suitable widget for each field, `DataclassWidget` searches for `Qt_typehint` metadata.
+To construct suitable widget for each field, `DataclassWidget` searches for `Qt_typehint` [metadata](https://docs.python.org/3/library/dataclasses.html#dataclasses.field).
 Its key must be the type annotation, not necessarily identical to `type` attribute of the field.
+
+For example,
+
+```python
+from dataclasses import dataclass, field
+from typing import Union
+
+@dataclass
+class DataClass:
+    x: Union[int, float] = field(metadata=dict(Qt_typehint=float))
+```
 
 If `Qt_typehint` does not exist, it uses `type` attribute of the field as a fallback.
 
