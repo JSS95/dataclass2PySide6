@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 from PySide6.QtCore import Qt
 import pytest
 from dataclass2PySide6 import (type2Widget, BoolCheckBox, IntLineEdit,
@@ -280,3 +280,12 @@ def test_EnumComboBox(qtbot):
 
     with qtbot.assertNotEmitted(widget.dataValueChanged):
         widget.setCurrentIndex(-1)
+
+
+def test_IntEnum(qtbot):
+    class MyIntEnum(IntEnum):
+        x = 1
+        y = 2
+        z = 3
+    widget = type2Widget(MyIntEnum)
+    assert isinstance(widget, EnumComboBox)

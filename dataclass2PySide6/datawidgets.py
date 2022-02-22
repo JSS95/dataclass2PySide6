@@ -37,6 +37,8 @@ def type2Widget(type_or_annot) -> QWidget:
     Return the widget instance for given type annotation.
 
     """
+    if isinstance(type_or_annot, type) and issubclass(type_or_annot, Enum):
+        return EnumComboBox.fromEnum(type_or_annot)
     if isinstance(type_or_annot, type) and issubclass(type_or_annot, bool):
         return BoolCheckBox()
     if isinstance(type_or_annot, type) and issubclass(type_or_annot, int):
@@ -45,8 +47,6 @@ def type2Widget(type_or_annot) -> QWidget:
         return FloatLineEdit()
     if isinstance(type_or_annot, type) and issubclass(type_or_annot, str):
         return StrLineEdit()
-    if isinstance(type_or_annot, type) and issubclass(type_or_annot, Enum):
-        return EnumComboBox.fromEnum(type_or_annot)
     origin = getattr(type_or_annot, '__origin__', None)
     if origin is tuple: # Tuple
         args = getattr(type_or_annot, '__args__', None)
