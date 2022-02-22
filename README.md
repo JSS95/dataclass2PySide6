@@ -61,6 +61,16 @@ User may subclass `DataclassWidget` to define own datclass widget. Refer to the 
 
 To construct `DataclassWidget`, pass dataclass type object to `DataclassWidget.fromDataclass()` method.
 
+`DataclassWidget` checks the type hints for each field and construct suitable widget for them.
+
+Currently supported types are:
+
+1. `Enum` : converted to combo box
+2. `bool` : converted to check box
+3. `int` and `float` : converted to line edit with validator
+4. `str` : converted to line edit
+5. `Tuple` : converted to group box if element types are supported
+
 ### Getting data value
 
 When data from any subwidget changes, `DataclassWidget.dataValueChanged` signal emits the new dataclass instance with current value.
