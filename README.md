@@ -61,13 +61,27 @@ User may subclass `DataclassWidget` to define own datclass widget. Refer to the 
 
 To construct `DataclassWidget`, pass dataclass type object to `DataclassWidget.fromDataclass()` method.
 
-`DataclassWidget` checks the type hints for each field and construct suitable widget for them.
+To construct suitable widget for each field, `DataclassWidget` searches for `Qt_typehint` [metadata](https://docs.python.org/3/library/dataclasses.html#dataclasses.field).
+Its key must be the type annotation, not necessarily identical to `type` attribute of the field.
+
+For example,
+
+```python
+from dataclasses import dataclass, field
+from typing import Union
+
+@dataclass
+class DataClass:
+    x: Union[int, float] = field(metadata=dict(Qt_typehint=float))
+```
+
+If `Qt_typehint` does not exist, it uses `type` attribute of the field as a fallback.
 
 Currently supported types are:
 
 1. `Enum` : converted to combo box
-2. `bool` : converted to check box
-3. `int` and `float` : converted to line edit with validator
+2. `bool` : converted to check box (`Union` with `None` allowed)
+3. `int` and `float` : converted to line edit with validator (`Union` with `None` allowed)
 4. `str` : converted to line edit
 5. `Tuple` : converted to group box if element types are supported
 

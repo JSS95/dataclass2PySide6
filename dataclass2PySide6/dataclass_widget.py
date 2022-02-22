@@ -2,8 +2,9 @@ import dataclasses
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (QWidget, QGroupBox, QVBoxLayout, QStackedWidget,
     QTabWidget, QSizePolicy)
+from typing import Dict, Union, Optional, get_type_hints, Any
+
 from .datawidgets import type2Widget
-from typing import Dict, Union, Optional, get_type_hints
 
 
 __all__ = [
@@ -28,8 +29,8 @@ class DataclassWidget(QGroupBox):
     Standard way to construct this widget is by :meth:`fromDataclass`
     class method.
 
-    Subclass may redefine :meth:`field2Widget` method to change the
-    subwidget constructed by the field. Every subwidget must have
+    Subclass may redefine :meth:`field2Widget` method to change how the
+    subwidgets are constructed by the field. Every subwidget must have
     ``dataValue()`` method which returns the current value,
     ``dataValueChanged`` signal which emits the changed value,
     and ``setDataValue()`` slot which updates the current value.
@@ -46,17 +47,18 @@ class DataclassWidget(QGroupBox):
     Widgets are automatically generated from type annotations. Nested
     dataclasses are recursively constructed.
 
-    >>> from dataclasses import dataclass
+    >>> from dataclasses import dataclass, field
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
-    >>> from typing import Tuple
+    >>> from typing import Tuple, Union
     >>> from dataclass2PySide6 import DataclassWidget
     >>> @dataclass
     ... class DataClass1:
     ...     a: Tuple[int, Tuple[bool, int]]
+    ...     b: Union[int, str] = field(metadata=dict(Qt_typehint=str))
     >>> @dataclass
     ... class DataClass2:
-    ...     x: str
+    ...     x: int
     ...     y: DataClass1
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
@@ -76,6 +78,9 @@ class DataclassWidget(QGroupBox):
         """
         Construct the widget using the fields from the dataclass.
 
+        If the field has `Qt_typehint` metadata, use its value to
+        construct the widget. If not, use `Field.type` as a fallback.
+
         Parameters
         ==========
 
@@ -87,9 +92,16 @@ class DataclassWidget(QGroupBox):
         obj._dataclass_type = datacls
         fields = dataclasses.fields(datacls)
         annots = get_type_hints(datacls.__init__)
+
+        widgets = {}
         for f in fields:
-            f.type = annots[f.name]
-        obj._widgets = {f.name: obj.field2Widget(f) for f in fields}
+            if 'Qt_typehint' in f.metadata:
+                typehint = f.metadata['Qt_typehint']
+            else:
+                typehint = annots[f.name]
+            w = obj.field2Widget(typehint, f)
+            widgets[f.name] = w
+        obj._widgets = widgets
         obj.initWidgets()
         obj.initUI()
         return obj
@@ -99,12 +111,13 @@ class DataclassWidget(QGroupBox):
         self._dataclass_type = _DefaultDataclass
         self._widgets = {}
 
-    def field2Widget(self, field: dataclasses.Field) -> QWidget:
+    @classmethod
+    def field2Widget(cls, typehint: Any, field: dataclasses.Field) -> QWidget:
         """Return a widget for *field*."""
-        if dataclasses.is_dataclass(field.type):
-            widget = type(self).fromDataclass(field.type)
+        if dataclasses.is_dataclass(typehint):
+            widget = cls.fromDataclass(typehint)
         else:
-            widget = type2Widget(field.type)
+            widget = type2Widget(typehint)
         widget.setDataName(field.name)
 
         default = field.default
@@ -148,7 +161,7 @@ class DataclassWidget(QGroupBox):
         except (TypeError, ValueError):
             pass
 
-    def dataValue(self) -> object:
+    def dataValue(self) -> Any:
         """
         Return the current state of widgets as dataclass instance.
 
@@ -163,7 +176,7 @@ class DataclassWidget(QGroupBox):
         data = self.dataclassType()(**args)
         return data
 
-    def setDataValue(self, data: object):
+    def setDataValue(self, data: Any):
         """
         Apply the dataclass instance to data widgets states.
 
