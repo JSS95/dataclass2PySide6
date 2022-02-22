@@ -250,7 +250,7 @@ class StackedDataclassWidget(QStackedWidget):
         super().setCurrentIndex(index)
         self.adjustSize()
 
-    def setCurrentWidget(self, w: QStackedWidget):
+    def setCurrentWidget(self, w: QWidget):
         old_widget = self.currentWidget()
         if old_widget is not None:
             old_widget.setSizePolicy(
@@ -366,7 +366,7 @@ class TabDataclassWidget(QTabWidget):
         super().setCurrentIndex(index)
         self.adjustSize()
 
-    def setCurrentWidget(self, w: QStackedWidget):
+    def setCurrentWidget(self, w: QWidget):
         old_widget = self.currentWidget()
         if old_widget is not None:
             old_widget.setSizePolicy(
