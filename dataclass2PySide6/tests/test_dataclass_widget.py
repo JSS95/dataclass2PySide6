@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QSizePolicy
 import pytest
 from dataclass2PySide6 import (DataclassWidget, StackedDataclassWidget,
     TabDataclassWidget, BoolCheckBox, IntLineEdit, FloatLineEdit)
-from typing import Tuple
+from typing import Tuple, Union
 
 
 class MyEnum(Enum):
@@ -571,3 +571,14 @@ def test_TabdataclassWidget_widgets_sizePolicy(qtbot, tabwidget):
            QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
     assert widget2.sizePolicy() == \
            QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+
+
+def test_Qt_typehint(qtbot):
+       @dataclasses.dataclass
+       class Dataclass:
+              x: Union[int, str] = dataclasses.field(
+                     metadata=dict(Qt_typehint=bool)
+              )
+
+       widget = DataclassWidget.fromDataclass(Dataclass)
+       assert isinstance(widget.widgets()['x'], BoolCheckBox)

@@ -29,8 +29,8 @@ class DataclassWidget(QGroupBox):
     Standard way to construct this widget is by :meth:`fromDataclass`
     class method.
 
-    Subclass may redefine :meth:`field2Widget` method to change the
-    subwidget constructed by the field. Every subwidget must have
+    Subclass may redefine :meth:`field2Widget` method to change how the
+    subwidgets are constructed by the field. Every subwidget must have
     ``dataValue()`` method which returns the current value,
     ``dataValueChanged`` signal which emits the changed value,
     and ``setDataValue()`` slot which updates the current value.
@@ -47,17 +47,18 @@ class DataclassWidget(QGroupBox):
     Widgets are automatically generated from type annotations. Nested
     dataclasses are recursively constructed.
 
-    >>> from dataclasses import dataclass
+    >>> from dataclasses import dataclass, field
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
-    >>> from typing import Tuple
+    >>> from typing import Tuple, Union
     >>> from dataclass2PySide6 import DataclassWidget
     >>> @dataclass
     ... class DataClass1:
     ...     a: Tuple[int, Tuple[bool, int]]
+    ...     b: Union[int, str] = field(metadata=dict(Qt_typehint=str))
     >>> @dataclass
     ... class DataClass2:
-    ...     x: str
+    ...     x: int
     ...     y: DataClass1
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
@@ -77,6 +78,9 @@ class DataclassWidget(QGroupBox):
         """
         Construct the widget using the fields from the dataclass.
 
+        If the field has `Qt_typehint` metadata, use its value to
+        construct the widget. If not, use `Field.type` as a fallback.
+
         Parameters
         ==========
 
@@ -91,7 +95,11 @@ class DataclassWidget(QGroupBox):
 
         widgets = {}
         for f in fields:
-            w = obj.field2Widget(annots[f.name], f)
+            if 'Qt_typehint' in f.metadata:
+                typehint = f.metadata['Qt_typehint']
+            else:
+                typehint = annots[f.name]
+            w = obj.field2Widget(typehint, f)
             widgets[f.name] = w
         obj._widgets = widgets
         obj.initWidgets()
