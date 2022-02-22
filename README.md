@@ -2,7 +2,7 @@ Python package to dynamically create PySide6 widgets from dataclass
 
 # Introduction
 
-dataclass2PySide6 is a package which provides widgets and functions to represent `dataclass` instance as `PySide6` GUI.
+dataclass2PySide6 is a package which provides widgets to represent `dataclass` instance as `PySide6` GUI.
 
 For example, here is a simple dataclass:
 
@@ -48,9 +48,33 @@ $ pip install dataclass2PySide6
 
 # How to use
 
-1. Create dataclass widget using ``DataclassWidget.fromDataclass()``.
-2. Get current state of widget with ``dataValueChanged`` signal and ``dataValue()`` method.
-3. Update the current state of widget with ``setDataValue()`` method.
+`DataclassWidget` is a widget for single dataclass type.
+For multiple dataclass types in one widget, `StackedDataclassWidget` and `TabDataclassWidget` are provided.
 
-User may subclass ``DataclassWidget`` to define own datclass widget.
-Refer to the docstring for detailed description.
+## Single dataclass
+
+`DataclassWidget` is the core object of `dataclass2PySide6`. It contains subwidgets which represent each fields of the dataclass.
+
+User may subclass `DataclassWidget` to define own datclass widget. Refer to the docstring for detailed description.
+
+### Creating widget
+
+To construct `DataclassWidget`, pass dataclass type object to `DataclassWidget.fromDataclass()` method.
+
+### Getting data value
+
+When data from any subwidget changes, `DataclassWidget.dataValueChanged` signal emits the new dataclass instance with current value.
+For check box or combo box, this is when the current selection changes. For line edit, this is when editing is finished.
+
+`DataclassWidget.dataValue()` method returns the new dataclass instance with current value.
+
+### Setting data value
+
+`DataclassWidget.setDataValue()` method updates the subwidget data with new dataclass instance.
+
+## Multiple dataclasses
+
+`StackedDataclassWidget` and `TabDataclassWidget` provide multiple `DataclassWidget` in one widget.
+
+Both classes provide `addDataclass()` method to add new widget for dataclass, and `indexOf()` method to search widget for dataclass.
+When current widget's value is changed, `dataValuechanged` signal emits the new dataclass instance with current value.
