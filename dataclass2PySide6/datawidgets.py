@@ -15,7 +15,7 @@ from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QValidator, QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QComboBox,
     QGroupBox, QHBoxLayout)
-from typing import List, Union
+from typing import List, Union, Any
 
 
 __all__ = [
@@ -217,7 +217,7 @@ class IntLineEdit(QLineEdit):
         self.setPlaceholderText(name)
         self.setToolTip(name)
 
-    def valueFromText(self, text: str) -> object:
+    def valueFromText(self, text: str) -> Any:
         """
         Convert the text to data value.
 
@@ -242,7 +242,7 @@ class IntLineEdit(QLineEdit):
             raise TypeError('Missing data for %s' % name)
         return val
 
-    def defaultDataValue(self) -> object:
+    def defaultDataValue(self) -> Any:
         """
         Default value for empty text.
 
@@ -251,7 +251,7 @@ class IntLineEdit(QLineEdit):
         """
         return self._default_data_value
 
-    def setDefaultDataValue(self, val: object):
+    def setDefaultDataValue(self, val: Any):
         """
         Set the default value for empty text.
 
@@ -276,7 +276,7 @@ class IntLineEdit(QLineEdit):
         """
         return self.defaultDataValue() is not MISSING
 
-    def dataValue(self) -> object:
+    def dataValue(self) -> Any:
         """
         Return the value from current text.
 
@@ -286,7 +286,7 @@ class IntLineEdit(QLineEdit):
         val = self.valueFromText(text)
         return val
 
-    def setDataValue(self, value: object):
+    def setDataValue(self, value: Any):
         """
         Set current data value and update the text. If the value is
         valid, emit to :attr:`dataValueChanged`.
@@ -373,7 +373,7 @@ class FloatLineEdit(QLineEdit):
         self.setPlaceholderText(name)
         self.setToolTip(name)
 
-    def valueFromText(self, text: str) -> object:
+    def valueFromText(self, text: str) -> Any:
         """
         Convert the text to data value.
 
@@ -398,7 +398,7 @@ class FloatLineEdit(QLineEdit):
             raise TypeError('Missing data for %s' % name)
         return val
 
-    def defaultDataValue(self) -> object:
+    def defaultDataValue(self) -> Any:
         """
         Default value for empty text.
 
@@ -407,7 +407,7 @@ class FloatLineEdit(QLineEdit):
         """
         return self._default_data_value
 
-    def setDefaultDataValue(self, val: object):
+    def setDefaultDataValue(self, val: Any):
         """
         Set the default value for empty text.
 
@@ -432,7 +432,7 @@ class FloatLineEdit(QLineEdit):
         """
         return self.defaultDataValue() is not MISSING
 
-    def dataValue(self) -> object:
+    def dataValue(self) -> Any:
         """
         Return the value from current text.
 
@@ -442,7 +442,7 @@ class FloatLineEdit(QLineEdit):
         val = self.valueFromText(text)
         return val
 
-    def setDataValue(self, value: object):
+    def setDataValue(self, value: Any):
         """
         Set current data value and update the text. If the value is
         valid, emit to :attr:`dataValueChanged`.
