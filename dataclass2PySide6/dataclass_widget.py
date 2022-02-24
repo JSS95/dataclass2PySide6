@@ -56,7 +56,7 @@ class DataclassWidget(QGroupBox):
     >>> from dataclasses import dataclass, field
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
-    >>> from typing import Tuple, Union
+    >>> from typing import Union
     >>> from dataclass2PySide6 import DataclassWidget
     >>> asUpper = lambda string: string.upper()
     >>> @dataclass
