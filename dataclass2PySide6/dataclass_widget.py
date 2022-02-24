@@ -31,16 +31,21 @@ class DataclassWidget(QGroupBox):
     to :meth:`fromDataclass` class method. The class searches for
     ``Qt_typehint`` metadata from each field to determine the subwidget
     type. If ``Qt_typehint`` does not exist, type of the field is used
-    as a fallback.
+    as a fallback. Dataclass type used to construct the instance can be
+    retrieved by :meth:`dataclasType`.
 
     :meth:`dataValue` constructs and returns the dataclass instance from
-    the current data of the widgets. If the field has ``Qt_converter``
-    metadata, it is used to convert the widget data to field value.
+    the current data of the widgets. If field of :meth:`dataclasType`
+    has ``Qt_converter`` metadata, it is used to convert the widget data
+    to field value.
 
     :meth:`setDataValue` updates the current states of the widgets with
-    dataclass instance. Whenever the data from subwidget is changed,
-    :attr:`dataValueChanged` emits the entire new dataclass instance if
-    all values are valid.
+    dataclass instance. If field of :meth:`dataclasType` has
+    ``toQt_converter`` metadata, it is used to convert the fied value
+    to widget data.
+
+    Whenever the data from subwidget is changed and values are all set,
+    :attr:`dataValueChanged` emits the entire new dataclass instance.
 
     Subclass may redefine :meth:`field2Widget` method to change how the
     subwidgets are constructed by the field. Every subwidget must have
@@ -170,9 +175,10 @@ class DataclassWidget(QGroupBox):
         """
         Return the current state of widgets as dataclass instance.
 
-        Fields can have ``Qt_converter`` metadata whose value is a
-        unary function which takes the data value of subwidget. It is
-        used to construct the value for the field.
+        Fields of :meth:`dataclassType` can have ``Qt_converter``
+        metadata whose value is a unary function which takes the data
+        value of subwidget. It is used to construct the value for the
+        field.
 
         Returns
         =======
@@ -197,6 +203,10 @@ class DataclassWidget(QGroupBox):
         """
         Apply the dataclass instance to data widgets states.
 
+        Fields of :meth:`dataclassType` can have ``toQt_converter``
+        metadata whose value is a unary function which takes the field
+        value. Its return value is updated to the subwidget.
+
         Parameters
         ==========
 
@@ -204,13 +214,27 @@ class DataclassWidget(QGroupBox):
             Dataclass instance or dict
 
         """
-        for name, w in self.widgets().items():
-            if isinstance(data, dict):
-                if not name in data.keys():
+        widgets = self.widgets()
+        dcls = self.dataclassType()
+
+        isdict = isinstance(data, dict)
+        isdataclass = isinstance(data, type) and dataclasses.is_dataclass(data)
+        if not isdict and isdataclass:
+            msg = f'{data} is not dictionary nor dataclass instance'
+            raise TypeError(msg)
+
+        for f in dataclasses.fields(dcls):
+            if isdict:
+                if not f.name in data.keys():
                     continue
-                val = data[name]
+                val = data[f.name]
             else:
-                val = getattr(data, name)
+                val = getattr(data, f.name)
+            converter = f.metadata.get('toQt_converter', None)
+            if converter is not None:
+                val = converter(val)
+
+            w = widgets[f.name]
             w.setDataValue(val)
 
 

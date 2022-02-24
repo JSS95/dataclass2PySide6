@@ -585,7 +585,7 @@ def test_Qt_typehint(qtbot):
     assert isinstance(widget.widgets()['x'], BoolCheckBox)
 
 
-def test_Qt_converter(qtbot):
+def test_Qt_converters(qtbot):
     class MyObj:
         def __init__(self, x: int, y: int):
                 self.x = x
@@ -599,7 +599,8 @@ def test_Qt_converter(qtbot):
             a: MyObj = dataclasses.field(
                     metadata=dict(
                         Qt_typehint=Tuple[int, int],
-                        Qt_converter=lambda tup: MyObj(*tup)
+                        Qt_converter=lambda tup: MyObj(*tup),
+                        toQt_converter=lambda obj: (obj.x, obj.y)
                     )
             )
 
@@ -611,3 +612,7 @@ def test_Qt_converter(qtbot):
     tuple_widget.widgets()[1].setText('2')
     assert tuple_widget.dataValue() == (1, 2)
     assert dclswidget.dataValue() == Dataclass(MyObj(1, 2))
+
+    dclswidget.setDataValue(Dataclass(MyObj(2, 3)))
+    assert tuple_widget.widgets()[0].text() == '2'
+    assert tuple_widget.widgets()[1].text() == '3'
