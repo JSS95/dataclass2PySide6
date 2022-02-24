@@ -4,7 +4,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QSizePolicy
 import pytest
 from dataclass2PySide6 import (DataclassWidget, StackedDataclassWidget,
-    TabDataclassWidget, BoolCheckBox, IntLineEdit, FloatLineEdit)
+    TabDataclassWidget, BoolCheckBox, IntLineEdit, FloatLineEdit,
+    TupleGroupBox)
 from typing import Tuple, Union
 
 
@@ -574,11 +575,39 @@ def test_TabdataclassWidget_widgets_sizePolicy(qtbot, tabwidget):
 
 
 def test_Qt_typehint(qtbot):
-       @dataclasses.dataclass
-       class Dataclass:
-              x: Union[int, str] = dataclasses.field(
-                     metadata=dict(Qt_typehint=bool)
-              )
+    @dataclasses.dataclass
+    class Dataclass:
+            x: Union[int, str] = dataclasses.field(
+                    metadata=dict(Qt_typehint=bool)
+            )
 
-       widget = DataclassWidget.fromDataclass(Dataclass)
-       assert isinstance(widget.widgets()['x'], BoolCheckBox)
+    widget = DataclassWidget.fromDataclass(Dataclass)
+    assert isinstance(widget.widgets()['x'], BoolCheckBox)
+
+
+def test_Qt_converter(qtbot):
+    class MyObj:
+        def __init__(self, x: int, y: int):
+                self.x = x
+                self.y = y
+        def __repr__(self):
+                return f'MyObj(x={self.x}, y={self.y})'
+        def __eq__(self, o):
+            return type(self) == type(o) and (self.x, self.y) == (o.x, o.y)
+    @dataclasses.dataclass
+    class Dataclass:
+            a: MyObj = dataclasses.field(
+                    metadata=dict(
+                        Qt_typehint=Tuple[int, int],
+                        Qt_converter=lambda tup: MyObj(*tup)
+                    )
+            )
+
+    dclswidget = DataclassWidget.fromDataclass(Dataclass)
+    tuple_widget = dclswidget.widgets()['a']
+    assert isinstance(tuple_widget, TupleGroupBox)
+
+    tuple_widget.widgets()[0].setText('1')
+    tuple_widget.widgets()[1].setText('2')
+    assert tuple_widget.dataValue() == (1, 2)
+    assert dclswidget.dataValue() == Dataclass(MyObj(1, 2))
