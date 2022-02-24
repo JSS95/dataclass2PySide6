@@ -81,10 +81,10 @@ When data from any subwidget changes, `DataclassWidget.dataValueChanged` signal 
 For check box or combo box, this is when the current selection changes. For line edit, this is when editing is finished.
 
 `DataclassWidget.dataValue()` method returns the new dataclass instance with current data value.
-Fields can define `Qt_converter` metadata to preprocess the data before dataclass construction.
+Fields can define `fromQt_converter` metadata to preprocess the data before dataclass construction.
 Its value must be a unary function which converts the widget data to field value.
 
-See [Dataclass example](#Dataclass-example) for the use case of `Qt_converter`.
+See [Dataclass example](#Dataclass-example) for the use case of `fromQt_converter`.
 
 ### Setting data value
 
@@ -121,7 +121,7 @@ class DataClass:
         my_obj: MyObj = field(
                 metadata=dict(
                     Qt_typehint=Tuple[int, int],
-                    Qt_converter=lambda tup: MyObj(*tup),
+                    fromQt_converter=lambda tup: MyObj(*tup),
                     toQt_converter=lambda obj: (obj.x, obj.y)
                 )
         )
