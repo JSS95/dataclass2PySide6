@@ -12,9 +12,8 @@ from typing import Tuple
 
 @dataclass
 class DataClass:
-    a: bool
-    b: int
-    c: Tuple[float, Tuple[bool, int]] = (4.2, (True, 99))
+    a: int
+    b: Tuple[float, bool] = (4.2, True)
 ```
 
 Dataclass widget can be dynamically created as follows.
@@ -32,7 +31,7 @@ app.quit()
 ```
 
 <div align="center">
-  <img src="https://github.com/JSS95/dataclass2PySide6/raw/master/imgs/example.png"/><br>
+  <img src="https://github.com/JSS95/dataclass2PySide6/raw/master/imgs/example.jpg"/><br>
 </div>
 
 # Installation
@@ -62,12 +61,12 @@ User may subclass `DataclassWidget` to define own datclass widget. Refer to the 
 To construct `DataclassWidget`, pass dataclass type object to `DataclassWidget.fromDataclass()` method.
 
 To construct suitable widget for each field, `DataclassWidget` searches for `Qt_typehint` [metadata](https://docs.python.org/3/library/dataclasses.html#dataclasses.field).
-Its key must be the type annotation, not necessarily identical to `type` attribute of the field.
+Its value must be the type annotation, not necessarily identical to `type` attribute of the field.
 
 For example,
 
 ```python
-from dataclasses import dataclass, field
+from dataclasses import field
 from typing import Union
 
 @dataclass
@@ -90,7 +89,17 @@ Currently supported types are:
 When data from any subwidget changes, `DataclassWidget.dataValueChanged` signal emits the new dataclass instance with current value.
 For check box or combo box, this is when the current selection changes. For line edit, this is when editing is finished.
 
-`DataclassWidget.dataValue()` method returns the new dataclass instance with current value.
+`DataclassWidget.dataValue()` method returns the new dataclass instance with current data value.
+Fields can define ``Qt_converter`` metadata to preprocess the data before dataclass construction.
+Its value must be a unary function which takes the data from the field's widget.
+
+For example,
+
+```python
+@dataclass
+class DataClass:
+    x: str = field(metadata=dict(Qt_converter=lambda s: s.upper()))
+```
 
 ### Setting data value
 
