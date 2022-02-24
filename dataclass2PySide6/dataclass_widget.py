@@ -36,8 +36,8 @@ class DataclassWidget(QGroupBox):
 
     :meth:`dataValue` constructs and returns the dataclass instance from
     the current data of the widgets. If field of :meth:`dataclasType`
-    has ``Qt_converter`` metadata, it is used to convert the widget data
-    to field value.
+    has ``fromQt_converter`` metadata, it is used to convert the widget
+    data to field value.
 
     :meth:`setDataValue` updates the current states of the widgets with
     dataclass instance. If field of :meth:`dataclasType` has
@@ -67,7 +67,7 @@ class DataclassWidget(QGroupBox):
     >>> @dataclass
     ... class DataClass1:
     ...     a: Union[int, str] = field(metadata=dict(Qt_typehint=str))
-    ...     b: str = field(metadata=dict(Qt_converter=asUpper))
+    ...     b: str = field(metadata=dict(fromQt_converter=asUpper))
     >>> @dataclass
     ... class DataClass2:
     ...     x: int
@@ -175,7 +175,7 @@ class DataclassWidget(QGroupBox):
         """
         Return the current state of widgets as dataclass instance.
 
-        Fields of :meth:`dataclassType` can have ``Qt_converter``
+        Fields of :meth:`dataclassType` can have ``fromQt_converter``
         metadata whose value is a unary function which takes the data
         value of subwidget. It is used to construct the value for the
         field.
@@ -192,7 +192,7 @@ class DataclassWidget(QGroupBox):
         args = {}
         for f in dataclasses.fields(dcls):
             val = widgets[f.name].dataValue()
-            converter = f.metadata.get('Qt_converter', None)
+            converter = f.metadata.get('fromQt_converter', None)
             if converter is not None:
                 val = converter(val)
             args[f.name] = val

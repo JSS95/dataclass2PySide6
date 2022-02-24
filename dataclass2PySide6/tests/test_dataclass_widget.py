@@ -599,7 +599,7 @@ def test_Qt_converters(qtbot):
             a: MyObj = dataclasses.field(
                     metadata=dict(
                         Qt_typehint=Tuple[int, int],
-                        Qt_converter=lambda tup: MyObj(*tup),
+                        fromQt_converter=lambda tup: MyObj(*tup),
                         toQt_converter=lambda obj: (obj.x, obj.y)
                     )
             )
