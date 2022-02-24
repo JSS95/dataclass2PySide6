@@ -24,10 +24,23 @@ class _DefaultDataclass:
 
 class DataclassWidget(QGroupBox):
     """
-    Widget which represents the fields of dataclass type.
+    Widget for a dataclass type. Subwidgets represent the fields of the
+    dataclass.
 
-    Standard way to construct this widget is by :meth:`fromDataclass`
-    class method.
+    Standard way to construct this widget is passing the dataclass type
+    to :meth:`fromDataclass` class method. The class searches for
+    ``Qt_typehint`` metadata from each field to determine the subwidget
+    type. If ``Qt_typehint`` does not exist, type of the field is used
+    as a fallback.
+
+    :meth:`dataValue` constructs and returns the dataclass instance from
+    the current data of the widgets. If the field has ``Qt_converter``
+    metadata, it is used to convert the widget data to field value.
+
+    :meth:`setDataValue` updates the current states of the widgets with
+    dataclass instance. Whenever the data from subwidget is changed,
+    :attr:`dataValueChanged` emits the entire new dataclass instance if
+    all values are valid.
 
     Subclass may redefine :meth:`field2Widget` method to change how the
     subwidgets are constructed by the field. Every subwidget must have
@@ -35,27 +48,21 @@ class DataclassWidget(QGroupBox):
     ``dataValueChanged`` signal which emits the changed value,
     and ``setDataValue()`` slot which updates the current value.
 
-    :meth:`dataValue` returns the current states of the widgets as
-    dataclass instance. :meth:`setDataValue` updates the current states
-    of the widgets with dataclass instance. Whenever the data from
-    subwidget is changed, :attr:`dataValueChanged` emits the entire
-    new dataclass instance if all values are valid.
-
     Examples
     ========
 
-    Widgets are automatically generated from type annotations. Nested
-    dataclasses are recursively constructed.
+    Nested dataclasses are recursively constructed.
 
     >>> from dataclasses import dataclass, field
     >>> from PySide6.QtWidgets import QApplication
     >>> import sys
     >>> from typing import Tuple, Union
     >>> from dataclass2PySide6 import DataclassWidget
+    >>> asUpper = lambda string: string.upper()
     >>> @dataclass
     ... class DataClass1:
-    ...     a: Tuple[int, Tuple[bool, int]]
-    ...     b: Union[int, str] = field(metadata=dict(Qt_typehint=str))
+    ...     a: Union[int, str] = field(metadata=dict(Qt_typehint=str))
+    ...     b: str = field(metadata=dict(Qt_converter=asUpper))
     >>> @dataclass
     ... class DataClass2:
     ...     x: int
@@ -63,8 +70,6 @@ class DataclassWidget(QGroupBox):
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = DataclassWidget.fromDataclass(DataClass2)
-    ...     geometry = widget.screen().availableGeometry()
-    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()
@@ -78,7 +83,7 @@ class DataclassWidget(QGroupBox):
         """
         Construct the widget using the fields from the dataclass.
 
-        If the field has `Qt_typehint` metadata, use its value to
+        If the field has ``Qt_typehint`` metadata, use its value to
         construct the widget. If not, use `Field.type` as a fallback.
 
         Parameters
@@ -165,6 +170,10 @@ class DataclassWidget(QGroupBox):
         """
         Return the current state of widgets as dataclass instance.
 
+        Fields can have ``Qt_converter`` metadata whose value is a
+        unary function which takes the data value of subwidget. It is
+        used to construct the value for the field.
+
         Returns
         =======
 
@@ -172,8 +181,16 @@ class DataclassWidget(QGroupBox):
             Dataclass instance
 
         """
-        args = {name: w.dataValue() for (name, w) in self.widgets().items()}
-        data = self.dataclassType()(**args)
+        widgets = self.widgets()
+        dcls = self.dataclassType()
+        args = {}
+        for f in dataclasses.fields(dcls):
+            val = widgets[f.name].dataValue()
+            converter = f.metadata.get('Qt_converter', None)
+            if converter is not None:
+                val = converter(val)
+            args[f.name] = val
+        data = dcls(**args)
         return data
 
     def setDataValue(self, data: Any):
@@ -222,8 +239,6 @@ class StackedDataclassWidget(QStackedWidget):
     ...     app = QApplication(sys.argv)
     ...     widget = StackedDataclassWidget()
     ...     widget.addDataclass(DataClass1)
-    ...     geometry = widget.screen().availableGeometry()
-    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()
@@ -339,8 +354,6 @@ class TabDataclassWidget(QTabWidget):
     ...     widget = TabDataclassWidget()
     ...     widget.addDataclass(DataClass1, "data1")
     ...     widget.addDataclass(DataClass2, "data2")
-    ...     geometry = widget.screen().availableGeometry()
-    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()

@@ -97,8 +97,6 @@ class BoolCheckBox(QCheckBox):
     ...     app = QApplication(sys.argv)
     ...     widget = BoolCheckBox()
     ...     widget.setTristate(True)
-    ...     geometry = widget.screen().availableGeometry()
-    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()
@@ -183,8 +181,6 @@ class IntLineEdit(QLineEdit):
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = IntLineEdit()
-    ...     geometry = widget.screen().availableGeometry()
-    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()
@@ -339,8 +335,6 @@ class FloatLineEdit(QLineEdit):
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = FloatLineEdit()
-    ...     geometry = widget.screen().availableGeometry()
-    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()
@@ -487,8 +481,6 @@ class StrLineEdit(QLineEdit):
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = StrLineEdit()
-    ...     geometry = widget.screen().availableGeometry()
-    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()
@@ -545,8 +537,6 @@ class TupleGroupBox(QGroupBox):
     ...     app = QApplication(sys.argv)
     ...     widgets = [BoolCheckBox(), IntLineEdit()]
     ...     widget = TupleGroupBox.fromWidgets(widgets)
-    ...     geometry = widget.screen().availableGeometry()
-    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()
@@ -635,8 +625,6 @@ class EnumComboBox(QComboBox):
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = EnumComboBox.fromEnum(MyEnum)
-    ...     geometry = widget.screen().availableGeometry()
-    ...     widget.resize(geometry.width() / 3, geometry.height() / 2)
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()
