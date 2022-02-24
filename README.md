@@ -63,16 +63,7 @@ To construct `DataclassWidget`, pass dataclass type object to `DataclassWidget.f
 To construct suitable widget for each field, `DataclassWidget` searches for `Qt_typehint` [metadata](https://docs.python.org/3/library/dataclasses.html#dataclasses.field).
 Its value must be the type annotation, not necessarily identical to `type` attribute of the field.
 
-For example,
-
-```python
-from dataclasses import field
-from typing import Union
-
-@dataclass
-class DataClass:
-    x: Union[int, float] = field(metadata=dict(Qt_typehint=float))
-```
+See [Dataclass example](#Dataclass-example) for the use case of `Qt_typehint`.
 
 If `Qt_typehint` does not exist, it uses `type` attribute of the field as a fallback.
 
@@ -90,20 +81,18 @@ When data from any subwidget changes, `DataclassWidget.dataValueChanged` signal 
 For check box or combo box, this is when the current selection changes. For line edit, this is when editing is finished.
 
 `DataclassWidget.dataValue()` method returns the new dataclass instance with current data value.
-Fields can define ``Qt_converter`` metadata to preprocess the data before dataclass construction.
-Its value must be a unary function which takes the data from the field's widget.
+Fields can define `Qt_converter` metadata to preprocess the data before dataclass construction.
+Its value must be a unary function which converts the widget data to field value.
 
-For example,
-
-```python
-@dataclass
-class DataClass:
-    x: str = field(metadata=dict(Qt_converter=lambda s: s.upper()))
-```
+See [Dataclass example](#Dataclass-example) for the use case of `Qt_converter`.
 
 ### Setting data value
 
 `DataclassWidget.setDataValue()` method updates the subwidget data with new dataclass instance.
+Fields can define `toQt_converter` metadata to preprocess the data before dataclass construction.
+Its value must be a unary function which converts the field value to widget data.
+
+See [Dataclass example](#Dataclass-example) for the use case of `toQt_converter`.
 
 ## Multiple dataclasses
 
@@ -111,3 +100,35 @@ class DataClass:
 
 Both classes provide `addDataclass()` method to add new widget for dataclass, and `indexOf()` method to search widget for dataclass.
 When current widget's value is changed, `dataValuechanged` signal emits the new dataclass instance with current value.
+
+# Dataclass example
+
+This is the example of dataclass which includes custom object.
+Widget is constructed by `Tuple[int, int]` to represent two parameters of `MyObj`.
+Conversion from `tuple` to `MyObj` and vice versa is defined.
+
+```python
+from dataclasses import field
+from typing import Tuple
+
+class MyObj:
+    def __init__(self, x: int, y: int):
+            self.x = x
+            self.y = y
+
+@dataclass
+class DataClass:
+        my_obj: MyObj = field(
+                metadata=dict(
+                    Qt_typehint=Tuple[int, int],
+                    Qt_converter=lambda tup: MyObj(*tup),
+                    toQt_converter=lambda obj: (obj.x, obj.y)
+                )
+        )
+```
+
+Here is the constructed widget.
+
+<div align="center">
+  <img src="https://github.com/JSS95/dataclass2PySide6/raw/master/imgs/example2.jpg"/><br>
+</div>
