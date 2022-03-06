@@ -15,7 +15,7 @@ from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QValidator, QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QComboBox,
     QGroupBox, QHBoxLayout)
-from typing import List, Union, Any
+from typing import List, Union, Any, Type, Optional
 
 
 __all__ = [
@@ -32,35 +32,32 @@ __all__ = [
 ]
 
 
-def type2Widget(type_or_annot) -> QWidget:
-    """
-    Return the widget instance for given type annotation.
-
-    """
-    if isinstance(type_or_annot, type) and issubclass(type_or_annot, Enum):
-        return EnumComboBox.fromEnum(type_or_annot)
-    if isinstance(type_or_annot, type) and issubclass(type_or_annot, bool):
+def type2Widget(t: Any) -> QWidget:
+    """Return the widget instance for given type annotation."""
+    if isinstance(t, type) and issubclass(t, Enum):
+        return EnumComboBox.fromEnum(t)
+    if isinstance(t, type) and issubclass(t, bool):
         return BoolCheckBox()
-    if isinstance(type_or_annot, type) and issubclass(type_or_annot, int):
+    if isinstance(t, type) and issubclass(t, int):
         return IntLineEdit()
-    if isinstance(type_or_annot, type) and issubclass(type_or_annot, float):
+    if isinstance(t, type) and issubclass(t, float):
         return FloatLineEdit()
-    if isinstance(type_or_annot, type) and issubclass(type_or_annot, str):
+    if isinstance(t, type) and issubclass(t, str):
         return StrLineEdit()
-    origin = getattr(type_or_annot, '__origin__', None)
-    if origin is tuple: # Tuple
-        args = getattr(type_or_annot, '__args__', None)
+    origin = getattr(t, '__origin__', None)
+    if origin is tuple:
+        args = getattr(t, '__args__', None)
         if args is None:
-            raise TypeError('%s does not have argument type' % type_or_annot)
+            raise TypeError('%s does not have argument type' % t)
         if Ellipsis in args:
-            txt = 'Number of arguments of %s not fixed' % type_or_annot
+            txt = 'Number of arguments of %s not fixed' % t
             raise TypeError(txt)
         widgets = [type2Widget(arg) for arg in args]
         return TupleGroupBox.fromWidgets(widgets)
     elif origin is Union:
-        args = [a for a in type_or_annot.__args__ if a is not type(None)]
+        args = [a for a in getattr(t, '__args__') if a is not type(None)]
         if len(args) > 1:
-            msg = f'Cannot convert Union with multiple types: {type_or_annot}'
+            msg = f'Cannot convert Union with multiple types: {t}'
             raise TypeError(msg)
         arg, = args
         if isinstance(arg, type) and issubclass(arg, bool):
@@ -71,7 +68,7 @@ def type2Widget(type_or_annot) -> QWidget:
             widget = type2Widget(arg)
             widget.setDefaultDataValue(None)
             return widget
-    raise TypeError('Unknown type or annotation: %s' % type_or_annot)
+    raise TypeError('Unknown type or annotation: %s' % t)
 
 
 class BoolCheckBox(QCheckBox):
@@ -117,7 +114,7 @@ class BoolCheckBox(QCheckBox):
         self.setText(name)
         self.setToolTip(name)
 
-    def dataValue(self) -> bool:
+    def dataValue(self) -> Optional[bool]:
         checkstate = self.checkState()
         if checkstate == Qt.Checked:
             state = True
@@ -156,7 +153,7 @@ MISSING = _MISSING_TYPE()
 class EmptyIntValidator(QIntValidator):
     """Validator which accpets integer and empty string"""
     def validate(self, input: str, pos: int) -> QValidator.State:
-        ret = super().validate(input, pos)
+        ret: QValidator.State = super().validate(input, pos) # type: ignore
         if not input:
             ret = QValidator.Acceptable
         return ret
@@ -310,7 +307,7 @@ class IntLineEdit(QLineEdit):
 class EmptyFloatValidator(QDoubleValidator):
     """Validator which accpets float and empty string"""
     def validate(self, input: str, pos: int) -> QValidator.State:
-        ret = super().validate(input, pos)
+        ret: QValidator.State = super().validate(input, pos) # type: ignore
         if not input:
             ret = QValidator.Acceptable
         return ret
@@ -634,7 +631,7 @@ class EnumComboBox(QComboBox):
     dataValueChanged = Signal(Enum)
 
     @classmethod
-    def fromEnum(cls, enum: type) -> 'EnumComboBox':
+    def fromEnum(cls, enum: Type[Enum]) -> 'EnumComboBox':
         obj = cls()
         for e in enum:
             obj.addItem(e.name, userData=e)

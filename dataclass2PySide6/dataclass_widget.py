@@ -84,7 +84,7 @@ class DataclassWidget(QGroupBox):
     dataValueChanged = Signal(object)
 
     @classmethod
-    def fromDataclass(cls, datacls: type) -> "DataclassWidget":
+    def fromDataclass(cls, datacls: Type) -> "DataclassWidget":
         """
         Construct the widget using the fields from the dataclass.
 
@@ -136,7 +136,7 @@ class DataclassWidget(QGroupBox):
 
         return widget
 
-    def dataclassType(self) -> type:
+    def dataclassType(self) -> Type:
         """Dataclass type which is used to construct *self*."""
         return self._dataclass_type
 
@@ -275,7 +275,7 @@ class StackedDataclassWidget(QStackedWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._dataclasses: Dict[type, int] = {}
+        self._dataclasses: Dict[Type, int] = {}
 
     def addWidget(self, w: QWidget):
         # force size policy to make ignore the size of hidden widget
@@ -318,7 +318,7 @@ class StackedDataclassWidget(QStackedWidget):
         super().setCurrentWidget(w)
         self.adjustSize()
 
-    def addDataclass(self, dcls: type, name: Optional[str] = None):
+    def addDataclass(self, dcls: Type, name: Optional[str] = None):
         """Construct and add the :class:`DataclassWidget`"""
         if name is None:
             name = dcls.__name__
@@ -382,7 +382,7 @@ class TabDataclassWidget(QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._dataclasses: Dict[type, int] = {}
+        self._dataclasses: Dict[Type, int] = {}
 
     def addTab(self, widget: QWidget, *args):
         # force size policy to make ignore the size of hidden widget
@@ -425,7 +425,7 @@ class TabDataclassWidget(QTabWidget):
         super().setCurrentWidget(w)
         self.adjustSize()
 
-    def addDataclass(self, dcls: type, label: str):
+    def addDataclass(self, dcls: Type, label: str):
         """Construct and add the :class:`DataclassWidget`"""
         widget = DataclassWidget.fromDataclass(dcls)
         self.addTab(widget, label)
