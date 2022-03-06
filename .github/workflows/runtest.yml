@@ -66,12 +66,7 @@ jobs:
 
     needs: flake8
 
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os : [ubuntu-latest]
-        python: ["3.9", "3.10"]
+    runs-on: ubuntu-latest
 
     steps:
 
