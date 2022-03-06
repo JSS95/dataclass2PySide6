@@ -5,12 +5,13 @@ from PySide6.QtWidgets import (QWidget, QGroupBox, QVBoxLayout, QStackedWidget,
 from typing import Dict, Optional, get_type_hints, Any, Type
 
 from .datawidgets import type2Widget
+from .typing import DataclassProtocol
 
 
 __all__ = [
-    "DataclassWidget",
-    "StackedDataclassWidget",
-    "TabDataclassWidget",
+    'DataclassWidget',
+    'StackedDataclassWidget',
+    'TabDataclassWidget',
 ]
 
 
@@ -84,18 +85,13 @@ class DataclassWidget(QGroupBox):
     dataValueChanged = Signal(object)
 
     @classmethod
-    def fromDataclass(cls, datacls: type) -> "DataclassWidget":
+    def fromDataclass(cls, datacls: Type[DataclassProtocol]) \
+                     -> 'DataclassWidget':
         """
         Construct the widget using the fields from the dataclass.
 
         If the field has ``Qt_typehint`` metadata, use its value to
         construct the widget. If not, use `Field.type` as a fallback.
-
-        Parameters
-        ==========
-
-        datacls
-            Dataclass type object
 
         """
         obj = cls()
@@ -136,7 +132,7 @@ class DataclassWidget(QGroupBox):
 
         return widget
 
-    def dataclassType(self) -> type:
+    def dataclassType(self) -> Type[DataclassProtocol]:
         """Dataclass type which is used to construct *self*."""
         return self._dataclass_type
 
@@ -171,7 +167,7 @@ class DataclassWidget(QGroupBox):
         except (TypeError, ValueError):
             pass
 
-    def dataValue(self) -> Any:
+    def dataValue(self) -> DataclassProtocol:
         """
         Return the current state of widgets as dataclass instance.
 
@@ -179,12 +175,6 @@ class DataclassWidget(QGroupBox):
         metadata whose value is a unary function which takes the data
         value of subwidget. It is used to construct the value for the
         field.
-
-        Returns
-        =======
-
-        data
-            Dataclass instance
 
         """
         widgets = self.widgets()
@@ -199,19 +189,13 @@ class DataclassWidget(QGroupBox):
         data = dcls(**args)
         return data
 
-    def setDataValue(self, data: Any):
+    def setDataValue(self, data: DataclassProtocol):
         """
         Apply the dataclass instance to data widgets states.
 
         Fields of :meth:`dataclassType` can have ``toQt_converter``
         metadata whose value is a unary function which takes the field
         value. Its return value is updated to the subwidget.
-
-        Parameters
-        ==========
-
-        data
-            Dataclass instance
 
         """
         widgets = self.widgets()
@@ -264,7 +248,7 @@ class StackedDataclassWidget(QStackedWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._dataclasses: Dict[type, int] = {}
+        self._dataclasses: Dict[Type[DataclassProtocol], int] = {}
 
     def addWidget(self, w: QWidget):
         # force size policy to make ignore the size of hidden widget
@@ -307,7 +291,9 @@ class StackedDataclassWidget(QStackedWidget):
         super().setCurrentWidget(w)
         self.adjustSize()
 
-    def addDataclass(self, dcls: type, name: Optional[str] = None):
+    def addDataclass(self,
+                     dcls: Type[DataclassProtocol],
+                     name: Optional[str] = None):
         """Construct and add the :class:`DataclassWidget`"""
         if name is None:
             name = dcls.__name__
@@ -317,10 +303,8 @@ class StackedDataclassWidget(QStackedWidget):
         self._dataclasses[dcls] = self.indexOf(widget)
         widget.dataValueChanged.connect(self.emitDataValueChanged)
 
-    def indexOfDataclass(self, dcls: Type) -> int:
-        """
-        Returns the index of the widget for *dcls*.
-        """
+    def indexOfDataclass(self, dcls: Type[DataclassProtocol]) -> int:
+        """Returns the index of the widget for *dcls*."""
         return self._dataclasses.get(dcls, -1)
 
     def emitDataValueChanged(self):
@@ -358,8 +342,8 @@ class TabDataclassWidget(QTabWidget):
     >>> def runGUI():
     ...     app = QApplication(sys.argv)
     ...     widget = TabDataclassWidget()
-    ...     widget.addDataclass(DataClass1, "data1")
-    ...     widget.addDataclass(DataClass2, "data2")
+    ...     widget.addDataclass(DataClass1, 'data1')
+    ...     widget.addDataclass(DataClass2, 'data2')
     ...     widget.show()
     ...     app.exec()
     ...     app.quit()
@@ -371,7 +355,7 @@ class TabDataclassWidget(QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._dataclasses: Dict[type, int] = {}
+        self._dataclasses: Dict[Type[DataclassProtocol], int] = {}
 
     def addTab(self, widget: QWidget, *args):
         # force size policy to make ignore the size of hidden widget
@@ -414,17 +398,15 @@ class TabDataclassWidget(QTabWidget):
         super().setCurrentWidget(w)
         self.adjustSize()
 
-    def addDataclass(self, dcls: type, label: str):
+    def addDataclass(self, dcls: Type[DataclassProtocol], label: str):
         """Construct and add the :class:`DataclassWidget`"""
         widget = DataclassWidget.fromDataclass(dcls)
         self.addTab(widget, label)
         self._dataclasses[dcls] = self.indexOf(widget)
         widget.dataValueChanged.connect(self.emitDataValueChanged)
 
-    def indexOfDataclass(self, dcls: Type) -> int:
-        """
-        Returns the index of the widget for *dcls*.
-        """
+    def indexOfDataclass(self, dcls: Type[DataclassProtocol]) -> int:
+        """Returns the index of the widget for *dcls*."""
         return self._dataclasses.get(dcls, -1)
 
     def emitDataValueChanged(self):
