@@ -61,3 +61,31 @@ jobs:
           pip install .[test-ci]
 
       - run: pytest
+
+  mypy:
+
+    needs: flake8
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os : [ubuntu-latest]
+        python: ["3.9", "3.10"]
+
+    steps:
+
+      - name: get repo
+        uses: actions/checkout@v2
+
+      - name: set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: install package
+        run: |
+          pip install -r requirements/install.txt
+          pip install -r requirements/test.txt
+
+      - run: mypy dataclass2PySide6
