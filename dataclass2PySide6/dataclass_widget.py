@@ -2,7 +2,7 @@ import dataclasses
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (QWidget, QGroupBox, QVBoxLayout, QStackedWidget,
     QTabWidget, QSizePolicy)
-from typing import Dict, Union, Optional, get_type_hints, Any
+from typing import Dict, Optional, get_type_hints, Any, Type
 
 from .datawidgets import type2Widget
 
@@ -243,8 +243,8 @@ class StackedDataclassWidget(QStackedWidget):
     Stacked dataclass widgets.
 
     Use :meth:`addDataclass` to construct and add the widget for the
-    dataclass. Use :meth:`indexOf` to get the index of the widget for
-    giten dataclass.
+    dataclass. Use :meth:`indexOfDataclass` to get the index of the
+    widget for giten dataclass.
 
     If data value of any dataclass widget is changed,
     :attr:`dataValueChanged` signal emits the new value.
@@ -328,18 +328,11 @@ class StackedDataclassWidget(QStackedWidget):
         self._dataclasses[dcls] = self.indexOf(widget)
         widget.dataValueChanged.connect(self.emitDataValueChanged)
 
-    def indexOf(self, arg__1: Union[type, QWidget]) -> int:
+    def indexOfDataclass(self, dcls: Type) -> int:
         """
-        Returns the index of the given dataclass or ``widget``. Return
-        -1 if it not exists in ``StackedDataclassWidget``.
+        Returns the index of the widget for *dcls*.
         """
-        if dataclasses.is_dataclass(arg__1):
-            if not isinstance(arg__1, type):
-                dcls = type(arg__1)
-            else:
-                dcls = arg__1
-            return self._dataclasses.get(dcls, -1)
-        return super().indexOf(arg__1)
+        return self._dataclasses.get(dcls, -1)
 
     def emitDataValueChanged(self):
         try:
@@ -354,7 +347,7 @@ class TabDataclassWidget(QTabWidget):
     Tabbed dataclass widgets.
 
     Use :meth:`addDataclass` to construct and add the widget for the
-    dataclass. Use :meth:`indexOf` to get the index of the widget for
+    dataclass. Use :meth:`indexOfDataclass` to get the index of the widget for
     giten dataclass.
 
     If data value of any dataclass widget is changed,
@@ -439,18 +432,11 @@ class TabDataclassWidget(QTabWidget):
         self._dataclasses[dcls] = self.indexOf(widget)
         widget.dataValueChanged.connect(self.emitDataValueChanged)
 
-    def indexOf(self, arg__1: Union[type, QWidget]) -> int:
+    def indexOfDataclass(self, dcls: Type) -> int:
         """
-        Returns the index of the given dataclass or ``widget``. Return
-        -1 if it not exists in ``TabDataclassWidget``.
+        Returns the index of the widget for *dcls*.
         """
-        if dataclasses.is_dataclass(arg__1):
-            if not isinstance(arg__1, type):
-                dcls = type(arg__1)
-            else:
-                dcls = arg__1
-            return self._dataclasses.get(dcls, -1)
-        return super().indexOf(arg__1)
+        return self._dataclasses.get(dcls, -1)
 
     def emitDataValueChanged(self):
         try:
