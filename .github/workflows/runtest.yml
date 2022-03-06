@@ -78,7 +78,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - name: install package
+      - name: install dependencies
         run: |
           pip install -r requirements/install.txt
           pip install -r requirements/test.txt
