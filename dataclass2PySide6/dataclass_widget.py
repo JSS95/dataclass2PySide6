@@ -211,25 +211,14 @@ class DataclassWidget(QGroupBox):
         ==========
 
         data
-            Dataclass instance or dict
+            Dataclass instance
 
         """
         widgets = self.widgets()
         dcls = self.dataclassType()
 
-        isdict = isinstance(data, dict)
-        isdataclass = isinstance(data, type) and dataclasses.is_dataclass(data)
-        if not isdict and isdataclass:
-            msg = f'{data} is not dictionary nor dataclass instance'
-            raise TypeError(msg)
-
         for f in dataclasses.fields(dcls):
-            if isdict:
-                if not f.name in data.keys():
-                    continue
-                val = data[f.name]
-            else:
-                val = getattr(data, f.name)
+            val = getattr(data, f.name)
             converter = f.metadata.get('toQt_converter', None)
             if converter is not None:
                 val = converter(val)
