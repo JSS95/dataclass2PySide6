@@ -328,10 +328,10 @@ def test_StackedDataclassWidget(qtbot, stackedwidget):
     @dataclasses.dataclass
     class OtherDataclass:
         pass
-    assert stackedwidget.indexOf(Dataclass1) == 0
-    assert stackedwidget.indexOf(Dataclass2) == 1
-    assert stackedwidget.indexOf(Dataclass3) == 2
-    assert stackedwidget.indexOf(OtherDataclass) == -1
+    assert stackedwidget.indexOfDataclass(Dataclass1) == 0
+    assert stackedwidget.indexOfDataclass(Dataclass2) == 1
+    assert stackedwidget.indexOfDataclass(Dataclass3) == 2
+    assert stackedwidget.indexOfDataclass(OtherDataclass) == -1
 
 
 def test_StackedDataclassWidget_dataValueChanged(qtbot, stackedwidget):
@@ -469,10 +469,10 @@ def test_TabdataclassWidget(qtbot, tabwidget):
     @dataclasses.dataclass
     class OtherDataclass:
         pass
-    assert tabwidget.indexOf(Dataclass1) == 0
-    assert tabwidget.indexOf(Dataclass2) == 1
-    assert tabwidget.indexOf(Dataclass3) == 2
-    assert tabwidget.indexOf(OtherDataclass) == -1
+    assert tabwidget.indexOfDataclass(Dataclass1) == 0
+    assert tabwidget.indexOfDataclass(Dataclass2) == 1
+    assert tabwidget.indexOfDataclass(Dataclass3) == 2
+    assert tabwidget.indexOfDataclass(OtherDataclass) == -1
 
 
 def test_TabdataclassWidget_dataValueChanged(qtbot, tabwidget):

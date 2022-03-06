@@ -98,7 +98,7 @@ See [Dataclass example](#Dataclass-example) for the use case of `toQt_converter`
 
 `StackedDataclassWidget` and `TabDataclassWidget` provide multiple `DataclassWidget` in one widget.
 
-Both classes provide `addDataclass()` method to add new widget for dataclass, and `indexOf()` method to search widget for dataclass.
+Both classes provide `addDataclass()` method to add new widget for dataclass, and `indexOfDataclass()` method to search widget for dataclass.
 When current widget's value is changed, `dataValuechanged` signal emits the new dataclass instance with current value.
 
 # Dataclass example
