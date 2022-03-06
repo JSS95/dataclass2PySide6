@@ -56,9 +56,11 @@ jobs:
       - name: install libopengl in ${{ matrix.os }}
         run: sudo apt install freeglut3 freeglut3-dev
 
-      - name: install package
+      - name: install dependencies
         run: |
-          pip install .[test-ci]
+          pip install -r requirements/install.txt
+          pip install -r requirements/test.txt
+          pip install -r requirements/test-ci.txt
 
       - run: pytest
 
