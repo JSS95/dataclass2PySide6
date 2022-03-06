@@ -19,16 +19,16 @@ from typing import List, Union, Any, Type, Optional
 
 
 __all__ = [
-    "type2Widget",
-    "BoolCheckBox",
-    "MISSING",
-    "EmptyIntValidator",
-    "IntLineEdit",
-    "EmptyFloatValidator",
-    "FloatLineEdit",
-    "StrLineEdit",
-    "TupleGroupBox",
-    "EnumComboBox",
+    'type2Widget',
+    'BoolCheckBox',
+    'MISSING',
+    'EmptyIntValidator',
+    'IntLineEdit',
+    'EmptyFloatValidator',
+    'FloatLineEdit',
+    'StrLineEdit',
+    'TupleGroupBox',
+    'EnumComboBox',
 ]
 
 
