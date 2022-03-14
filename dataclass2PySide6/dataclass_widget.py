@@ -217,7 +217,7 @@ class StackedDataclassWidget(QStackedWidget):
 
     Use :meth:`addDataclass` to construct and add the widget for the
     dataclass. Use :meth:`indexOfDataclass` to get the index of the
-    widget for giten dataclass.
+    widget for given dataclass.
 
     If data value of any dataclass widget is changed,
     :attr:`dataValueChanged` signal emits the new value.
@@ -247,8 +247,6 @@ class StackedDataclassWidget(QStackedWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        self._dataclasses: Dict[Type[DataclassProtocol], int] = {}
 
     def addWidget(self, w: QWidget):
         # force size policy to make ignore the size of hidden widget
@@ -300,12 +298,22 @@ class StackedDataclassWidget(QStackedWidget):
         widget = DataclassWidget.fromDataclass(dcls)
         widget.setDataName(name)
         self.addWidget(widget)
-        self._dataclasses[dcls] = self.indexOf(widget)
         widget.dataValueChanged.connect(self.emitDataValueChanged)
 
     def indexOfDataclass(self, dcls: Type[DataclassProtocol]) -> int:
-        """Returns the index of the widget for *dcls*."""
-        return self._dataclasses.get(dcls, -1)
+        """
+        Returns the index of the widget for *dcls*. If not found, return
+        -1.
+        """
+        ret = -1
+        for i in range(self.count()):
+            widget = self.widget(i)
+            if isinstance(widget, DataclassWidget):
+                widget_dcls = widget.dataclassType()
+                if widget_dcls is dcls:
+                    ret = i
+                    break
+        return ret
 
     def emitDataValueChanged(self):
         try:
@@ -320,8 +328,8 @@ class TabDataclassWidget(QTabWidget):
     Tabbed dataclass widgets.
 
     Use :meth:`addDataclass` to construct and add the widget for the
-    dataclass. Use :meth:`indexOfDataclass` to get the index of the widget for
-    giten dataclass.
+    dataclass. Use :meth:`indexOfDataclass` to get the index of the
+    widget for given dataclass.
 
     If data value of any dataclass widget is changed,
     :attr:`dataValueChanged` signal emits the new value.
@@ -354,8 +362,6 @@ class TabDataclassWidget(QTabWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        self._dataclasses: Dict[Type[DataclassProtocol], int] = {}
 
     def addTab(self, widget: QWidget, *args):
         # force size policy to make ignore the size of hidden widget
@@ -402,12 +408,22 @@ class TabDataclassWidget(QTabWidget):
         """Construct and add the :class:`DataclassWidget`"""
         widget = DataclassWidget.fromDataclass(dcls)
         self.addTab(widget, label)
-        self._dataclasses[dcls] = self.indexOf(widget)
         widget.dataValueChanged.connect(self.emitDataValueChanged)
 
     def indexOfDataclass(self, dcls: Type[DataclassProtocol]) -> int:
-        """Returns the index of the widget for *dcls*."""
-        return self._dataclasses.get(dcls, -1)
+        """
+        Returns the index of the widget for *dcls*. If not found, return
+        -1.
+        """
+        ret = -1
+        for i in range(self.count()):
+            widget = self.widget(i)
+            if isinstance(widget, DataclassWidget):
+                widget_dcls = widget.dataclassType()
+                if widget_dcls is dcls:
+                    ret = i
+                    break
+        return ret
 
     def emitDataValueChanged(self):
         try:
