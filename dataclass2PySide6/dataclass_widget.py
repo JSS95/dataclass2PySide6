@@ -248,8 +248,6 @@ class StackedDataclassWidget(QStackedWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._dataclasses: Dict[Type[DataclassProtocol], int] = {}
-
     def addWidget(self, w: QWidget):
         # force size policy to make ignore the size of hidden widget
         w.setSizePolicy(
@@ -300,12 +298,19 @@ class StackedDataclassWidget(QStackedWidget):
         widget = DataclassWidget.fromDataclass(dcls)
         widget.setDataName(name)
         self.addWidget(widget)
-        self._dataclasses[dcls] = self.indexOf(widget)
         widget.dataValueChanged.connect(self.emitDataValueChanged)
 
     def indexOfDataclass(self, dcls: Type[DataclassProtocol]) -> int:
         """Returns the index of the widget for *dcls*."""
-        return self._dataclasses.get(dcls, -1)
+        ret = -1
+        for i in range(self.count()):
+            widget = self.widget(i)
+            if isinstance(widget, DataclassWidget):
+                widget_dcls = widget.dataclassType()
+                if widget_dcls is dcls:
+                    ret = i
+                    break
+        return ret
 
     def emitDataValueChanged(self):
         try:
@@ -355,8 +360,6 @@ class TabDataclassWidget(QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._dataclasses: Dict[Type[DataclassProtocol], int] = {}
-
     def addTab(self, widget: QWidget, *args):
         # force size policy to make ignore the size of hidden widget
         widget.setSizePolicy(
@@ -402,12 +405,19 @@ class TabDataclassWidget(QTabWidget):
         """Construct and add the :class:`DataclassWidget`"""
         widget = DataclassWidget.fromDataclass(dcls)
         self.addTab(widget, label)
-        self._dataclasses[dcls] = self.indexOf(widget)
         widget.dataValueChanged.connect(self.emitDataValueChanged)
 
     def indexOfDataclass(self, dcls: Type[DataclassProtocol]) -> int:
         """Returns the index of the widget for *dcls*."""
-        return self._dataclasses.get(dcls, -1)
+        ret = -1
+        for i in range(self.count()):
+            widget = self.widget(i)
+            if isinstance(widget, DataclassWidget):
+                widget_dcls = widget.dataclassType()
+                if widget_dcls is dcls:
+                    ret = i
+                    break
+        return ret
 
     def emitDataValueChanged(self):
         try:
