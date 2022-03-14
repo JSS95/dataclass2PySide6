@@ -217,7 +217,7 @@ class StackedDataclassWidget(QStackedWidget):
 
     Use :meth:`addDataclass` to construct and add the widget for the
     dataclass. Use :meth:`indexOfDataclass` to get the index of the
-    widget for giten dataclass.
+    widget for given dataclass.
 
     If data value of any dataclass widget is changed,
     :attr:`dataValueChanged` signal emits the new value.
@@ -301,7 +301,10 @@ class StackedDataclassWidget(QStackedWidget):
         widget.dataValueChanged.connect(self.emitDataValueChanged)
 
     def indexOfDataclass(self, dcls: Type[DataclassProtocol]) -> int:
-        """Returns the index of the widget for *dcls*."""
+        """
+        Returns the index of the widget for *dcls*. If not found, return
+        -1.
+        """
         ret = -1
         for i in range(self.count()):
             widget = self.widget(i)
@@ -325,8 +328,8 @@ class TabDataclassWidget(QTabWidget):
     Tabbed dataclass widgets.
 
     Use :meth:`addDataclass` to construct and add the widget for the
-    dataclass. Use :meth:`indexOfDataclass` to get the index of the widget for
-    giten dataclass.
+    dataclass. Use :meth:`indexOfDataclass` to get the index of the
+    widget for given dataclass.
 
     If data value of any dataclass widget is changed,
     :attr:`dataValueChanged` signal emits the new value.
@@ -408,7 +411,10 @@ class TabDataclassWidget(QTabWidget):
         widget.dataValueChanged.connect(self.emitDataValueChanged)
 
     def indexOfDataclass(self, dcls: Type[DataclassProtocol]) -> int:
-        """Returns the index of the widget for *dcls*."""
+        """
+        Returns the index of the widget for *dcls*. If not found, return
+        -1.
+        """
         ret = -1
         for i in range(self.count()):
             widget = self.widget(i)
