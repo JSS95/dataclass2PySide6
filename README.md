@@ -99,6 +99,9 @@ See [Dataclass example](#Dataclass-example) for the use case of `toQt_converter`
 Both classes provide `addDataclass()` method to add new widget for dataclass, and `indexOfDataclass()` method to search widget for dataclass.
 When current widget's value is changed, `dataValuechanged` signal emits the new dataclass instance with current value.
 
+Note that changing the current index (or current widget) does not emit `dataValuechanged` signal.
+Listen to standard `currentChanged` signal to detect it.
+
 # Dataclass example
 
 This is the example of dataclass which includes custom object.
