@@ -9,6 +9,8 @@ from dataclass2PySide6 import (DataclassWidget, StackedDataclassWidget,
 from typing import Tuple, Union
 
 
+# test dataclass widget
+
 class MyEnum(Enum):
     x = 1
     y = 2
@@ -272,6 +274,8 @@ def test_DataclassWidget_str_annotation(qtbot):
     assert isinstance(widgetC.widgets()['z'], BoolCheckBox)
 
 
+# test stacked dataclass widget
+
 @pytest.fixture
 def stackedwidget(qtbot):
     @dataclasses.dataclass
@@ -335,6 +339,10 @@ def test_StackedDataclassWidget_dataValueChanged(qtbot, stackedwidget):
         widget = stackedwidget.widget(2).widgets()['c']
         widget.setText('10')
         qtbot.keyPress(widget, Qt.Key_Return)
+
+    # test that change of not-current-widget does not emit signal
+    with qtbot.assertNotEmitted(stackedwidget.dataValueChanged):
+        stackedwidget.widget(0).emitDataValueChanged()
 
 
 def test_StackedDataclassWidget_widgets_sizePolicy(qtbot, stackedwidget):
@@ -408,6 +416,8 @@ def test_StackedDataclassWidget_widgets_sizePolicy(qtbot, stackedwidget):
            QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
 
+# test tab dataclass widget
+
 @pytest.fixture
 def tabwidget(qtbot):
     @dataclasses.dataclass
@@ -476,6 +486,10 @@ def test_TabdataclassWidget_dataValueChanged(qtbot, tabwidget):
         widget = tabwidget.widget(2).widgets()['c']
         widget.setText('10')
         qtbot.keyPress(widget, Qt.Key_Return)
+
+    # test that change of not-current-widget does not emit signal
+    with qtbot.assertNotEmitted(tabwidget.dataValueChanged):
+        tabwidget.widget(0).emitDataValueChanged()
 
 
 def test_TabdataclassWidget_widgets_sizePolicy(qtbot, tabwidget):
@@ -548,6 +562,8 @@ def test_TabdataclassWidget_widgets_sizePolicy(qtbot, tabwidget):
     assert widget2.sizePolicy() == \
            QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
+
+# test metadata
 
 def test_Qt_typehint(qtbot):
     @dataclasses.dataclass

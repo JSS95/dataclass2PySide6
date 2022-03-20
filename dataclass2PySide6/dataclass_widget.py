@@ -219,7 +219,7 @@ class StackedDataclassWidget(QStackedWidget):
     dataclass. Use :meth:`indexOfDataclass` to get the index of the
     widget for given dataclass.
 
-    If data value of any dataclass widget is changed,
+    If data value of current dataclass widget is changed,
     :attr:`dataValueChanged` signal emits the new value.
 
     Examples
@@ -315,12 +315,13 @@ class StackedDataclassWidget(QStackedWidget):
                     break
         return ret
 
-    def emitDataValueChanged(self):
-        try:
-            val = self.currentWidget().dataValue()
-            self.dataValueChanged.emit(val)
-        except (TypeError, ValueError):
-            pass
+    def emitDataValueChanged(self, data: DataclassProtocol):
+        if self.indexOfDataclass(type(data)) == self.currentIndex():
+            try:
+                val = self.currentWidget().dataValue()
+                self.dataValueChanged.emit(val)
+            except (TypeError, ValueError):
+                pass
 
 
 class TabDataclassWidget(QTabWidget):
@@ -331,7 +332,7 @@ class TabDataclassWidget(QTabWidget):
     dataclass. Use :meth:`indexOfDataclass` to get the index of the
     widget for given dataclass.
 
-    If data value of any dataclass widget is changed,
+    If data value of current dataclass widget is changed,
     :attr:`dataValueChanged` signal emits the new value.
 
     Examples
@@ -425,9 +426,10 @@ class TabDataclassWidget(QTabWidget):
                     break
         return ret
 
-    def emitDataValueChanged(self):
-        try:
-            val = self.currentWidget().dataValue()
-            self.dataValueChanged.emit(val)
-        except (TypeError, ValueError):
-            pass
+    def emitDataValueChanged(self, data: DataclassProtocol):
+        if self.indexOfDataclass(type(data)) == self.currentIndex():
+            try:
+                val = self.currentWidget().dataValue()
+                self.dataValueChanged.emit(val)
+            except (TypeError, ValueError):
+                pass
