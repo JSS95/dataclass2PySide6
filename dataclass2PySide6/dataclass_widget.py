@@ -1,5 +1,5 @@
 import dataclasses
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, QSignalBlocker
 from PySide6.QtWidgets import (QWidget, QGroupBox, QVBoxLayout, QStackedWidget,
     QTabWidget, QSizePolicy)
 from typing import Dict, Optional, get_type_hints, Any, Type
@@ -201,14 +201,17 @@ class DataclassWidget(QGroupBox):
         widgets = self.widgets()
         dcls = self.dataclassType()
 
-        for f in dataclasses.fields(dcls):
-            val = getattr(data, f.name)
-            converter = f.metadata.get('toQt_converter', None)
-            if converter is not None:
-                val = converter(val)
+        with QSignalBlocker(self):
+            for f in dataclasses.fields(dcls):
+                val = getattr(data, f.name)
+                converter = f.metadata.get('toQt_converter', None)
+                if converter is not None:
+                    val = converter(val)
 
-            w = widgets[f.name]
-            w.setDataValue(val)
+                w = widgets[f.name]
+                w.setDataValue(val)
+        self.emitDataValueChanged()
+
 
 
 class StackedDataclassWidget(QStackedWidget):
