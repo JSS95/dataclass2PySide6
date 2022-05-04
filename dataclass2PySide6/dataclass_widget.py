@@ -1,7 +1,13 @@
 import dataclasses
 from PySide6.QtCore import Signal, QSignalBlocker
-from PySide6.QtWidgets import (QWidget, QGroupBox, QVBoxLayout, QStackedWidget,
-    QTabWidget, QSizePolicy)
+from PySide6.QtWidgets import (
+    QWidget,
+    QGroupBox,
+    QVBoxLayout,
+    QStackedWidget,
+    QTabWidget,
+    QSizePolicy,
+)
 from typing import Dict, Optional, get_type_hints, Any, Type
 
 from .datawidgets import type2Widget
@@ -9,9 +15,9 @@ from .typing import DataclassProtocol
 
 
 __all__ = [
-    'DataclassWidget',
-    'StackedDataclassWidget',
-    'TabDataclassWidget',
+    "DataclassWidget",
+    "StackedDataclassWidget",
+    "TabDataclassWidget",
 ]
 
 
@@ -20,6 +26,7 @@ class _DefaultDataclass:
     """
     Default empty dataclass for uninitialized :class:`DataclassWidget`.
     """
+
     pass
 
 
@@ -85,8 +92,7 @@ class DataclassWidget(QGroupBox):
     dataValueChanged = Signal(object)
 
     @classmethod
-    def fromDataclass(cls, datacls: Type[DataclassProtocol]) \
-                     -> 'DataclassWidget':
+    def fromDataclass(cls, datacls: Type[DataclassProtocol]) -> "DataclassWidget":
         """
         Construct the widget using the fields from the dataclass.
 
@@ -101,8 +107,8 @@ class DataclassWidget(QGroupBox):
 
         widgets = {}
         for f in fields:
-            if 'Qt_typehint' in f.metadata:
-                typehint = f.metadata['Qt_typehint']
+            if "Qt_typehint" in f.metadata:
+                typehint = f.metadata["Qt_typehint"]
             else:
                 typehint = annots[f.name]
             w = obj.field2Widget(typehint, f)
@@ -182,7 +188,7 @@ class DataclassWidget(QGroupBox):
         args = {}
         for f in dataclasses.fields(dcls):
             val = widgets[f.name].dataValue()
-            converter = f.metadata.get('fromQt_converter', None)
+            converter = f.metadata.get("fromQt_converter", None)
             if converter is not None:
                 val = converter(val)
             args[f.name] = val
@@ -204,14 +210,13 @@ class DataclassWidget(QGroupBox):
         with QSignalBlocker(self):
             for f in dataclasses.fields(dcls):
                 val = getattr(data, f.name)
-                converter = f.metadata.get('toQt_converter', None)
+                converter = f.metadata.get("toQt_converter", None)
                 if converter is not None:
                     val = converter(val)
 
                 w = widgets[f.name]
                 w.setDataValue(val)
         self.emitDataValueChanged()
-
 
 
 class StackedDataclassWidget(QStackedWidget):
@@ -253,25 +258,16 @@ class StackedDataclassWidget(QStackedWidget):
 
     def addWidget(self, w: QWidget):
         # force size policy to make ignore the size of hidden widget
-        w.setSizePolicy(
-            QSizePolicy.Ignored,
-            QSizePolicy.Ignored
-        )
+        w.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         super().addWidget(w)
 
     def setCurrentIndex(self, index: int):
         old_widget = self.currentWidget()
         if old_widget is not None:
-            old_widget.setSizePolicy(
-                QSizePolicy.Ignored,
-                QSizePolicy.Ignored
-            )
+            old_widget.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         new_widget = self.widget(index)
         if new_widget is not None:
-            new_widget.setSizePolicy(
-                QSizePolicy.Preferred,
-                QSizePolicy.Preferred
-            )
+            new_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
             new_widget.adjustSize()
         super().setCurrentIndex(index)
         self.adjustSize()
@@ -279,22 +275,14 @@ class StackedDataclassWidget(QStackedWidget):
     def setCurrentWidget(self, w: QWidget):
         old_widget = self.currentWidget()
         if old_widget is not None:
-            old_widget.setSizePolicy(
-                QSizePolicy.Ignored,
-                QSizePolicy.Ignored
-            )
+            old_widget.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         if w is not None:
-            w.setSizePolicy(
-                QSizePolicy.Preferred,
-                QSizePolicy.Preferred
-            )
+            w.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
             w.adjustSize()
         super().setCurrentWidget(w)
         self.adjustSize()
 
-    def addDataclass(self,
-                     dcls: Type[DataclassProtocol],
-                     name: Optional[str] = None):
+    def addDataclass(self, dcls: Type[DataclassProtocol], name: Optional[str] = None):
         """Construct and add the :class:`DataclassWidget`"""
         if name is None:
             name = dcls.__name__
@@ -362,6 +350,7 @@ class TabDataclassWidget(QTabWidget):
     >>> runGUI() # doctest: +SKIP
 
     """
+
     dataValueChanged = Signal(object)
 
     def __init__(self, parent=None):
@@ -369,25 +358,16 @@ class TabDataclassWidget(QTabWidget):
 
     def addTab(self, widget: QWidget, *args):
         # force size policy to make ignore the size of hidden widget
-        widget.setSizePolicy(
-            QSizePolicy.Ignored,
-            QSizePolicy.Ignored
-        )
+        widget.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         super().addTab(widget, *args)
 
     def setCurrentIndex(self, index: int):
         old_widget = self.currentWidget()
         if old_widget is not None:
-            old_widget.setSizePolicy(
-                QSizePolicy.Ignored,
-                QSizePolicy.Ignored
-            )
+            old_widget.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         new_widget = self.widget(index)
         if new_widget is not None:
-            new_widget.setSizePolicy(
-                QSizePolicy.Preferred,
-                QSizePolicy.Preferred
-            )
+            new_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
             new_widget.adjustSize()
         super().setCurrentIndex(index)
         self.adjustSize()
@@ -395,15 +375,9 @@ class TabDataclassWidget(QTabWidget):
     def setCurrentWidget(self, w: QWidget):
         old_widget = self.currentWidget()
         if old_widget is not None:
-            old_widget.setSizePolicy(
-                QSizePolicy.Ignored,
-                QSizePolicy.Ignored
-            )
+            old_widget.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         if w is not None:
-            w.setSizePolicy(
-                QSizePolicy.Preferred,
-                QSizePolicy.Preferred
-            )
+            w.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
             w.adjustSize()
         super().setCurrentWidget(w)
         self.adjustSize()

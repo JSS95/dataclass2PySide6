@@ -13,22 +13,28 @@ Every widget has following methods and attributes:
 from enum import Enum
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QValidator, QIntValidator, QDoubleValidator
-from PySide6.QtWidgets import (QWidget, QCheckBox, QLineEdit, QComboBox,
-    QGroupBox, QHBoxLayout)
+from PySide6.QtWidgets import (
+    QWidget,
+    QCheckBox,
+    QLineEdit,
+    QComboBox,
+    QGroupBox,
+    QHBoxLayout,
+)
 from typing import List, Union, Any, Type, Optional
 
 
 __all__ = [
-    'type2Widget',
-    'BoolCheckBox',
-    'MISSING',
-    'EmptyIntValidator',
-    'IntLineEdit',
-    'EmptyFloatValidator',
-    'FloatLineEdit',
-    'StrLineEdit',
-    'TupleGroupBox',
-    'EnumComboBox',
+    "type2Widget",
+    "BoolCheckBox",
+    "MISSING",
+    "EmptyIntValidator",
+    "IntLineEdit",
+    "EmptyFloatValidator",
+    "FloatLineEdit",
+    "StrLineEdit",
+    "TupleGroupBox",
+    "EnumComboBox",
 ]
 
 
@@ -44,22 +50,22 @@ def type2Widget(t: Any) -> QWidget:
         return FloatLineEdit()
     if isinstance(t, type) and issubclass(t, str):
         return StrLineEdit()
-    origin = getattr(t, '__origin__', None)
+    origin = getattr(t, "__origin__", None)
     if origin is tuple:
-        args = getattr(t, '__args__', None)
+        args = getattr(t, "__args__", None)
         if args is None:
-            raise TypeError('%s does not have argument type' % t)
+            raise TypeError("%s does not have argument type" % t)
         if Ellipsis in args:
-            txt = 'Number of arguments of %s not fixed' % t
+            txt = "Number of arguments of %s not fixed" % t
             raise TypeError(txt)
         widgets = [type2Widget(arg) for arg in args]
         return TupleGroupBox.fromWidgets(widgets)
     elif origin is Union:
-        args = [a for a in getattr(t, '__args__') if a is not type(None)]
+        args = [a for a in getattr(t, "__args__") if not isinstance(None, a)]
         if len(args) > 1:
-            msg = f'Cannot convert Union with multiple types: {t}'
+            msg = f"Cannot convert Union with multiple types: {t}"
             raise TypeError(msg)
-        arg, = args
+        (arg,) = args
         if isinstance(arg, type) and issubclass(arg, bool):
             widget = type2Widget(arg)
             widget.setTristate(True)
@@ -68,7 +74,7 @@ def type2Widget(t: Any) -> QWidget:
             widget = type2Widget(arg)
             widget.setDefaultDataValue(None)
             return widget
-    raise TypeError('Unknown type or annotation: %s' % t)
+    raise TypeError("Unknown type or annotation: %s" % t)
 
 
 class BoolCheckBox(QCheckBox):
@@ -100,7 +106,8 @@ class BoolCheckBox(QCheckBox):
     >>> runGUI() # doctest: +SKIP
 
     """
-    dataValueChanged = Signal(object) # bool or None
+
+    dataValueChanged = Signal(object)  # bool or None
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -145,15 +152,18 @@ class BoolCheckBox(QCheckBox):
 
 class _MISSING_TYPE:
     """Sentinel object to detect if the default value is set or not."""
+
     pass
+
 
 MISSING = _MISSING_TYPE()
 
 
 class EmptyIntValidator(QIntValidator):
     """Validator which accpets integer and empty string"""
+
     def validate(self, input: str, pos: int) -> QValidator.State:
-        ret: QValidator.State = super().validate(input, pos) # type: ignore
+        ret: QValidator.State = super().validate(input, pos)  # type: ignore
         if not input:
             ret = QValidator.Acceptable
         return ret
@@ -183,6 +193,7 @@ class IntLineEdit(QLineEdit):
     ...     app.quit()
     >>> runGUI() # doctest: +SKIP
     """
+
     dataValueChanged = Signal(object)
 
     def __init__(self, parent=None):
@@ -232,7 +243,7 @@ class IntLineEdit(QLineEdit):
             val = self.defaultDataValue()
         else:
             name = self.dataName() or str(self)
-            raise TypeError('Missing data for %s' % name)
+            raise TypeError("Missing data for %s" % name)
         return val
 
     def defaultDataValue(self) -> Any:
@@ -287,7 +298,7 @@ class IntLineEdit(QLineEdit):
         If the new value is same as the default value, empty str is set.
         """
         if value == self.defaultDataValue():
-            self.setText('')
+            self.setText("")
         else:
             self.setText(str(value))
         self.emitDataValueChanged()
@@ -306,8 +317,9 @@ class IntLineEdit(QLineEdit):
 
 class EmptyFloatValidator(QDoubleValidator):
     """Validator which accpets float and empty string"""
+
     def validate(self, input: str, pos: int) -> QValidator.State:
-        ret: QValidator.State = super().validate(input, pos) # type: ignore
+        ret: QValidator.State = super().validate(input, pos)  # type: ignore
         if not input:
             ret = QValidator.Acceptable
         return ret
@@ -337,6 +349,7 @@ class FloatLineEdit(QLineEdit):
     ...     app.quit()
     >>> runGUI() # doctest: +SKIP
     """
+
     dataValueChanged = Signal(object)
 
     def __init__(self, parent=None):
@@ -386,7 +399,7 @@ class FloatLineEdit(QLineEdit):
             val = self.defaultDataValue()
         else:
             name = self.dataName() or str(self)
-            raise TypeError('Missing data for %s' % name)
+            raise TypeError("Missing data for %s" % name)
         return val
 
     def defaultDataValue(self) -> Any:
@@ -441,7 +454,7 @@ class FloatLineEdit(QLineEdit):
         If the new value is same as the default value, empty str is set.
         """
         if value == self.defaultDataValue():
-            self.setText('')
+            self.setText("")
         else:
             self.setText(str(value))
         self.emitDataValueChanged()
@@ -483,6 +496,7 @@ class StrLineEdit(QLineEdit):
     ...     app.quit()
     >>> runGUI() # doctest: +SKIP
     """
+
     dataValueChanged = Signal(str)
 
     def __init__(self, parent=None):
@@ -540,10 +554,11 @@ class TupleGroupBox(QGroupBox):
     >>> runGUI() # doctest: +SKIP
 
     """
+
     dataValueChanged = Signal(tuple)
 
     @classmethod
-    def fromWidgets(cls, widgets: List[QWidget]) -> 'TupleGroupBox':
+    def fromWidgets(cls, widgets: List[QWidget]) -> "TupleGroupBox":
         obj = cls()
         obj._widgets = widgets
         obj.initWidgets()
@@ -628,10 +643,11 @@ class EnumComboBox(QComboBox):
     >>> runGUI() # doctest: +SKIP
 
     """
+
     dataValueChanged = Signal(Enum)
 
     @classmethod
-    def fromEnum(cls, enum: Type[Enum]) -> 'EnumComboBox':
+    def fromEnum(cls, enum: Type[Enum]) -> "EnumComboBox":
         obj = cls()
         for e in enum:
             obj.addItem(e.name, userData=e)

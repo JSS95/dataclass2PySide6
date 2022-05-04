@@ -1,8 +1,16 @@
 from enum import Enum, IntEnum
 from PySide6.QtCore import Qt
 import pytest
-from dataclass2PySide6 import (type2Widget, BoolCheckBox, IntLineEdit,
-    FloatLineEdit, StrLineEdit, TupleGroupBox, EnumComboBox, MISSING)
+from dataclass2PySide6 import (
+    type2Widget,
+    BoolCheckBox,
+    IntLineEdit,
+    FloatLineEdit,
+    StrLineEdit,
+    TupleGroupBox,
+    EnumComboBox,
+    MISSING,
+)
 from typing import Tuple, Union, Optional
 
 
@@ -48,28 +56,28 @@ def test_BoolCheckBox(qtbot):
     widget = BoolCheckBox()
 
     # test dataValueChanged signal
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val is True):
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val is True
+    ):
         widget.setCheckState(Qt.Checked)
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val is False):
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val is False
+    ):
         widget.setCheckState(Qt.Unchecked)
 
     # test tristate
     widget.setTristate(True)
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val is True):
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val is True
+    ):
         widget.setCheckState(Qt.Checked)
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val is False):
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val is False
+    ):
         widget.setCheckState(Qt.Unchecked)
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val is None):
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val is None
+    ):
         widget.setCheckState(Qt.PartiallyChecked)
 
 
@@ -89,26 +97,26 @@ def test_IntLineEdit(qtbot):
     assert widget.dataValue() == 10
     widget.setDefaultDataValue(None)
     assert widget.hasDefaultDataValue()
-    assert widget.dataValue() == None
+    assert widget.dataValue() is None
     widget.setDefaultDataValue(MISSING)
     assert not widget.hasDefaultDataValue()
     with pytest.raises(TypeError):
         widget.dataValue()
 
     # test dataValueChanged signal
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == 1):
-        qtbot.keyPress(widget, '1')
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val == 1
+    ):
+        qtbot.keyPress(widget, "1")
         qtbot.keyPress(widget, Qt.Key_Return)
     assert widget.dataValue() == 1
 
     widget.clear()
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == -1):
-        qtbot.keyPress(widget, '-')
-        qtbot.keyPress(widget, '1')
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val == -1
+    ):
+        qtbot.keyPress(widget, "-")
+        qtbot.keyPress(widget, "1")
         qtbot.keyPress(widget, Qt.Key_Return)
     assert widget.dataValue() == -1
 
@@ -120,25 +128,25 @@ def test_IntLineEdit(qtbot):
         widget.dataValue()
 
     widget.setDefaultDataValue(None)
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val is None):
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val is None
+    ):
         qtbot.keyPress(widget, Qt.Key_Return)
 
     widget.setDefaultDataValue(10)
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == 10):
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val == 10
+    ):
         qtbot.keyPress(widget, Qt.Key_Return)
 
     # test validator
     widget.clear()
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == 11):
-        qtbot.keyPress(widget, '1')
-        qtbot.keyPress(widget, '.') # this key is ignored
-        qtbot.keyPress(widget, '1')
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val == 11
+    ):
+        qtbot.keyPress(widget, "1")
+        qtbot.keyPress(widget, ".")  # this key is ignored
+        qtbot.keyPress(widget, "1")
         qtbot.keyPress(widget, Qt.Key_Return)
     assert widget.dataValue() == 11
 
@@ -159,30 +167,30 @@ def test_FloatLineEdit(qtbot):
     assert widget.dataValue() == float(10)
     widget.setDefaultDataValue(None)
     assert widget.hasDefaultDataValue()
-    assert widget.dataValue() == None
+    assert widget.dataValue() is None
     widget.setDefaultDataValue(MISSING)
     assert not widget.hasDefaultDataValue()
     with pytest.raises(TypeError):
         widget.dataValue()
 
     # test dataValueChanged signal
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == 1.2):
-        qtbot.keyPress(widget, '1')
-        qtbot.keyPress(widget, '.')
-        qtbot.keyPress(widget, '2')
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val == 1.2
+    ):
+        qtbot.keyPress(widget, "1")
+        qtbot.keyPress(widget, ".")
+        qtbot.keyPress(widget, "2")
         qtbot.keyPress(widget, Qt.Key_Return)
     assert widget.dataValue() == 1.2
 
     widget.clear()
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == -1.2):
-        qtbot.keyPress(widget, '-')
-        qtbot.keyPress(widget, '1')
-        qtbot.keyPress(widget, '.')
-        qtbot.keyPress(widget, '2')
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val == -1.2
+    ):
+        qtbot.keyPress(widget, "-")
+        qtbot.keyPress(widget, "1")
+        qtbot.keyPress(widget, ".")
+        qtbot.keyPress(widget, "2")
         qtbot.keyPress(widget, Qt.Key_Return)
     assert widget.dataValue() == -1.2
 
@@ -194,27 +202,29 @@ def test_FloatLineEdit(qtbot):
         widget.dataValue()
 
     widget.setDefaultDataValue(None)
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val is None):
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val is None
+    ):
         qtbot.keyPress(widget, Qt.Key_Return)
 
     widget.setDefaultDataValue(float(10))
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == float(10)):
+    with qtbot.waitSignal(
+        widget.dataValueChanged,
+        raising=True,
+        check_params_cb=lambda val: val == float(10),
+    ):
         qtbot.keyPress(widget, Qt.Key_Return)
 
     # test validator
     widget.clear()
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == 1.2):
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val == 1.2
+    ):
         qtbot.mouseClick(widget, Qt.LeftButton)
-        qtbot.keyPress(widget, '1')
-        qtbot.keyPress(widget, '.')
-        qtbot.keyPress(widget, '.') # this key is ignored
-        qtbot.keyPress(widget, '2')
+        qtbot.keyPress(widget, "1")
+        qtbot.keyPress(widget, ".")
+        qtbot.keyPress(widget, ".")  # this key is ignored
+        qtbot.keyPress(widget, "2")
         qtbot.keyPress(widget, Qt.Key_Return)
     assert widget.dataValue() == 1.2
 
@@ -223,20 +233,20 @@ def test_StrLineEdit(qtbot):
     widget = StrLineEdit()
 
     # test dataValueChanged signal
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == 'foo'):
-        qtbot.keyPress(widget, 'f')
-        qtbot.keyPress(widget, 'o')
-        qtbot.keyPress(widget, 'o')
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val == "foo"
+    ):
+        qtbot.keyPress(widget, "f")
+        qtbot.keyPress(widget, "o")
+        qtbot.keyPress(widget, "o")
         qtbot.keyPress(widget, Qt.Key_Return)
-    assert widget.dataValue() == 'foo'
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == ''):
-        widget.setText('')
+    assert widget.dataValue() == "foo"
+    with qtbot.waitSignal(
+        widget.dataValueChanged, raising=True, check_params_cb=lambda val: val == ""
+    ):
+        widget.setText("")
         qtbot.keyPress(widget, Qt.Key_Return)
-    assert widget.dataValue() == ''
+    assert widget.dataValue() == ""
 
 
 def test_TupleGroupBox(qtbot):
@@ -247,12 +257,14 @@ def test_TupleGroupBox(qtbot):
         widget.dataValue()
 
     # test dataValueChanged signal
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == (42, 0.0)):
-        widget.widgets()[0].setText('42')
+    with qtbot.waitSignal(
+        widget.dataValueChanged,
+        raising=True,
+        check_params_cb=lambda val: val == (42, 0.0),
+    ):
+        widget.widgets()[0].setText("42")
         qtbot.keyPress(widget.widgets()[0], Qt.Key_Return)
-        widget.widgets()[1].setText('0')
+        widget.widgets()[1].setText("0")
         qtbot.keyPress(widget.widgets()[1], Qt.Key_Return)
     assert widget.dataValue() == (42, 0.0)
 
@@ -268,14 +280,18 @@ def test_EnumComboBox(qtbot):
     assert widget.currentIndex() == -1
     assert widget.dataValue() == MyEnum.x
 
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == MyEnum.y):
+    with qtbot.waitSignal(
+        widget.dataValueChanged,
+        raising=True,
+        check_params_cb=lambda val: val == MyEnum.y,
+    ):
         widget.setDataValue(MyEnum.y)
 
-    with qtbot.waitSignal(widget.dataValueChanged,
-                          raising=True,
-                          check_params_cb=lambda val: val == MyEnum.z):
+    with qtbot.waitSignal(
+        widget.dataValueChanged,
+        raising=True,
+        check_params_cb=lambda val: val == MyEnum.z,
+    ):
         widget.setCurrentIndex(2)
 
     with qtbot.assertNotEmitted(widget.dataValueChanged):
@@ -287,5 +303,6 @@ def test_IntEnum(qtbot):
         x = 1
         y = 2
         z = 3
+
     widget = type2Widget(MyIntEnum)
     assert isinstance(widget, EnumComboBox)
