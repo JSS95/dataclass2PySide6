@@ -4,14 +4,15 @@ from setuptools import setup, find_packages
 
 VERSION_FILE = "dataclass2PySide6/version.py"
 
+
 def get_version():
     with open(VERSION_FILE, "r") as f:
-        exec(compile(f.read(), VERSION_FILE, 'exec'))
+        exec(compile(f.read(), VERSION_FILE, "exec"))
     return locals()["__version__"]
 
 
 def read_readme():
-    with open('README.md', encoding='utf-8') as f:
+    with open("README.md", encoding="utf-8") as f:
         content = f.read()
     return content
 
@@ -26,22 +27,26 @@ def get_extras_require():
     ret = {}
 
     ret["test"] = read_requirements("requirements/test.txt")
-    ret["test-ci"] = read_requirements("requirements/test.txt") \
-                     + read_requirements("requirements/test-ci.txt")
-    ret['full'] = list(set(chain(*ret.values())))
+    ret["test-ci"] = read_requirements("requirements/test.txt") + read_requirements(
+        "requirements/test-ci.txt"
+    )
+    ret["full"] = list(set(chain(*ret.values())))
     return ret
 
 
 setup(
     name="dataclass2PySide6",
     version=get_version(),
-    python_requires='>=3.9',
+    python_requires=">=3.9",
     description="Package to construct PySide6 widgets from dataclass",
     long_description=read_readme(),
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     keywords="GUI",
     classifiers=[
-        "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+        (
+            "License :: OSI Approved :: "
+            "GNU Library or Lesser General Public License (LGPL)"
+        ),
         "Operating System :: MacOS",
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX",
