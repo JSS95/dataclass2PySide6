@@ -14,14 +14,14 @@ from enum import Enum
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QValidator, QIntValidator, QDoubleValidator
 from PySide6.QtWidgets import (
-    QWidget,
     QCheckBox,
     QLineEdit,
     QComboBox,
     QGroupBox,
     QHBoxLayout,
 )
-from typing import List, Union, Any, Type, Optional
+from typing import List, Union, Any, Type, Optional, TypeVar
+from .typing import DataWidgetProtocol
 
 
 __all__ = [
@@ -38,7 +38,7 @@ __all__ = [
 ]
 
 
-def type2Widget(t: Any) -> QWidget:
+def type2Widget(t: Any) -> DataWidgetProtocol:
     """Return the widget instance for given type annotation."""
     if isinstance(t, type) and issubclass(t, Enum):
         return EnumComboBox.fromEnum(t)
@@ -50,7 +50,7 @@ def type2Widget(t: Any) -> QWidget:
         return FloatLineEdit()
     if isinstance(t, type) and issubclass(t, str):
         return StrLineEdit()
-    origin = getattr(t, "__origin__", None)
+    origin = getattr(t, "__origin__", None)  # t is Tuple[]
     if origin is tuple:
         args = getattr(t, "__args__", None)
         if args is None:
@@ -60,18 +60,16 @@ def type2Widget(t: Any) -> QWidget:
             raise TypeError(txt)
         widgets = [type2Widget(arg) for arg in args]
         return TupleGroupBox.fromWidgets(widgets)
-    elif origin is Union:
+    if origin is Union:
         args = [a for a in getattr(t, "__args__") if not isinstance(None, a)]
         if len(args) > 1:
             msg = f"Cannot convert Union with multiple types: {t}"
             raise TypeError(msg)
-        (arg,) = args
-        if isinstance(arg, type) and issubclass(arg, bool):
-            widget = type2Widget(arg)
+        widget = type2Widget(args[0])
+        if isinstance(widget, BoolCheckBox):
             widget.setTristate(True)
             return widget
-        if isinstance(arg, type) and issubclass(arg, (int, float)):
-            widget = type2Widget(arg)
+        if isinstance(widget, (IntLineEdit, FloatLineEdit)):
             widget.setDefaultDataValue(None)
             return widget
     raise TypeError("Unknown type or annotation: %s" % t)
@@ -522,6 +520,9 @@ class StrLineEdit(QLineEdit):
         self.dataValueChanged.emit(self.text())
 
 
+T = TypeVar("T", bound="TupleGroupBox")
+
+
 class TupleGroupBox(QGroupBox):
     """
     Widget to represent the tuple data with fixed number of items.
@@ -558,7 +559,7 @@ class TupleGroupBox(QGroupBox):
     dataValueChanged = Signal(tuple)
 
     @classmethod
-    def fromWidgets(cls, widgets: List[QWidget]) -> "TupleGroupBox":
+    def fromWidgets(cls: Type[T], widgets: List[DataWidgetProtocol]) -> T:
         obj = cls()
         obj._widgets = widgets
         obj.initWidgets()
@@ -576,7 +577,7 @@ class TupleGroupBox(QGroupBox):
         self.setTitle(name)
         self.setToolTip(name)
 
-    def widgets(self) -> List[QWidget]:
+    def widgets(self) -> List[DataWidgetProtocol]:
         return self._widgets
 
     def initWidgets(self):
@@ -603,6 +604,9 @@ class TupleGroupBox(QGroupBox):
             self.dataValueChanged.emit(value)
         except (ValueError, TypeError):
             pass
+
+
+V = TypeVar("V", bound="EnumComboBox")
 
 
 class EnumComboBox(QComboBox):
@@ -647,7 +651,7 @@ class EnumComboBox(QComboBox):
     dataValueChanged = Signal(Enum)
 
     @classmethod
-    def fromEnum(cls, enum: Type[Enum]) -> "EnumComboBox":
+    def fromEnum(cls: Type[V], enum: Type[Enum]) -> V:
         obj = cls()
         for e in enum:
             obj.addItem(e.name, userData=e)

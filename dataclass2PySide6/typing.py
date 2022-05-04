@@ -1,15 +1,27 @@
-from typing import Protocol, Dict, Optional, Callable
+from typing import Protocol, Dict, Any
 
 
-__all__ = [
-    "DataclassProtocol",
-]
+__all__ = ["DataclassProtocol", "DataWidgetProtocol"]
 
 
 class DataclassProtocol(Protocol):
-    """Type annotation for dataclass type object"""
+    """Type annotation for dataclass type object."""
 
-    # https://stackoverflow.com/a/70114354/11501976
+    # https://stackoverflow.com/a/55240861/11501976
     __dataclass_fields__: Dict
-    __dataclass_params__: Dict
-    __post_init__: Optional[Callable]
+
+
+class DataWidgetProtocol(Protocol):
+    """Type annotation for data widget object."""
+
+    def dataValue(self) -> Any:
+        ...
+
+    def setDataValue(self, value: Any):
+        ...
+
+    def dataName(self) -> str:
+        ...
+
+    def setDataName(self, name: str):
+        ...
