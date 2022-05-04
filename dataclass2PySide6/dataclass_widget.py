@@ -8,10 +8,10 @@ from PySide6.QtWidgets import (
     QTabWidget,
     QSizePolicy,
 )
-from typing import Dict, Optional, get_type_hints, Any, Type
+from typing import Dict, Optional, get_type_hints, Any, Type, TypeVar, Union, cast
 
 from .datawidgets import type2Widget
-from .typing import DataclassProtocol
+from .typing import DataclassProtocol, DataWidgetProtocol
 
 
 __all__ = [
@@ -28,6 +28,9 @@ class _DefaultDataclass:
     """
 
     pass
+
+
+T = TypeVar("T", bound="DataclassWidget")
 
 
 class DataclassWidget(QGroupBox):
@@ -92,7 +95,7 @@ class DataclassWidget(QGroupBox):
     dataValueChanged = Signal(object)
 
     @classmethod
-    def fromDataclass(cls, datacls: Type[DataclassProtocol]) -> "DataclassWidget":
+    def fromDataclass(cls: Type[T], datacls: Type[DataclassProtocol]) -> T:
         """
         Construct the widget using the fields from the dataclass.
 
@@ -124,17 +127,19 @@ class DataclassWidget(QGroupBox):
         self._widgets = {}
 
     @classmethod
-    def field2Widget(cls, typehint: Any, field: dataclasses.Field) -> QWidget:
+    def field2Widget(
+        cls: Type[T], typehint: Any, field: dataclasses.Field
+    ) -> Union[T, DataWidgetProtocol]:
         """Return a widget for *field*."""
         if dataclasses.is_dataclass(typehint):
             widget = cls.fromDataclass(typehint)
         else:
-            widget = type2Widget(typehint)
+            widget = type2Widget(typehint)  # type: ignore
         widget.setDataName(field.name)
 
         default = field.default
         if default != dataclasses.MISSING:
-            widget.setDataValue(default)
+            widget.setDataValue(default)  # type: ignore
 
         return widget
 
@@ -148,7 +153,7 @@ class DataclassWidget(QGroupBox):
     def setDataName(self, name: str):
         self.setTitle(name)
 
-    def widgets(self) -> Dict[str, QWidget]:
+    def widgets(self) -> Dict[str, DataWidgetProtocol]:
         """
         Sub-widgets which represent the fields of :meth:`dataclassType`.
         """
@@ -309,7 +314,8 @@ class StackedDataclassWidget(QStackedWidget):
     def emitDataValueChanged(self, data: DataclassProtocol):
         if self.indexOfDataclass(type(data)) == self.currentIndex():
             try:
-                val = self.currentWidget().dataValue()
+                widget = cast(DataclassWidget, self.currentWidget())
+                val = widget.dataValue()
                 self.dataValueChanged.emit(val)
             except (TypeError, ValueError):
                 pass
@@ -406,7 +412,8 @@ class TabDataclassWidget(QTabWidget):
     def emitDataValueChanged(self, data: DataclassProtocol):
         if self.indexOfDataclass(type(data)) == self.currentIndex():
             try:
-                val = self.currentWidget().dataValue()
+                widget = cast(DataclassWidget, self.currentWidget())
+                val = widget.dataValue()
                 self.dataValueChanged.emit(val)
             except (TypeError, ValueError):
                 pass

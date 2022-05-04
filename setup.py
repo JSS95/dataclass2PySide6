@@ -1,5 +1,5 @@
 from itertools import chain
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages  # type: ignore
 
 
 VERSION_FILE = "dataclass2PySide6/version.py"
