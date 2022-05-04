@@ -63,6 +63,7 @@ setup(
     url="https://github.com/JSS95/dataclass2PySide6",
     license="LGPL",
     packages=find_packages(),
+    package_data={"dataclass2PySide6": ["py.typed"]},
     install_requires=read_requirements("requirements/install.txt"),
     extras_require=get_extras_require(),
 )
