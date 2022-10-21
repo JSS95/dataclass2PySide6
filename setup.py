@@ -43,6 +43,7 @@ setup(
     long_description_content_type="text/markdown",
     keywords="GUI",
     classifiers=[
+        "Development Status :: 7 - Inactive",
         (
             "License :: OSI Approved :: "
             "GNU Library or Lesser General Public License (LGPL)"
