@@ -1,5 +1,7 @@
 Python package to dynamically create PySide6 widgets from dataclass
 
+> :warning: This package no longer actively maintained. Use [DaWiQ](https://pypi.org/project/dawiq/) instead.
+
 # Introduction
 
 dataclass2PySide6 is a package which provides widgets to represent `dataclass` instance as `PySide6` GUI.
